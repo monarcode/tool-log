@@ -1,9 +1,8 @@
 {
   "expo": {
-    "name": "tool-log",
+    "name": "ToolLog",
     "slug": "tool-log",
     "version": "1.0.0",
-
     "scheme": "tool-log",
     "web": {
       "bundler": "metro",
@@ -17,19 +16,17 @@
         {
           "launchMode": "most-recent"
         }
-      ]
+      ],
+      "expo-font",
+      "react-native-nfc-manager"
     ],
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -37,13 +34,24 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cyborg.toollog"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.cyborg.toollog"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "fb6429c8-94ad-460c-8df0-31a6a78fbe11"
       }
-    }
+    },
+    "owner": "teamcyborg"
   }
 }
