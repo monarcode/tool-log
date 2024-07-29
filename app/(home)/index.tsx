@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { Keyboard, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
@@ -15,6 +15,14 @@ const bottomInset = UnistylesRuntime.insets.bottom;
 
 const HomeScreen = () => {
   const { styles } = useStyles(_styles);
+
+  const handleCreateTool = () => {
+    // call bottom sheet
+
+    setTimeout(() => {
+      router.push('/add-tool');
+    }, 3000);
+  };
 
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
@@ -35,13 +43,11 @@ const HomeScreen = () => {
               <Text style={styles.label}>Scan Tool</Text>
             </Pressable>
 
-            <Link href="/my-tools" asChild>
-              <Pressable style={styles.action}>
-                <AddTool style={styles.icon} />
+            <Pressable style={styles.action} onPress={handleCreateTool}>
+              <AddTool style={styles.icon} />
 
-                <Text style={styles.label}>Add New Tool</Text>
-              </Pressable>
-            </Link>
+              <Text style={styles.label}>Add New Tool</Text>
+            </Pressable>
 
             <Link href="/my-tools" asChild>
               <Pressable style={styles.action}>
