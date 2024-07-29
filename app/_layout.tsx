@@ -5,10 +5,12 @@ import {
   Manrope_600SemiBold,
   useFonts,
 } from '@expo-google-fonts/manrope';
-import { SplashScreen, Stack } from 'expo-router';
+import { router, SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import NfcManager from 'react-native-nfc-manager';
 
+import { useAccountStore } from '~/store/account.store';
 import '../unistyles';
 
 export const unstable_settings = {
@@ -39,10 +41,24 @@ export default function RootLayout() {
     return null;
   }
 
+  return <RootLayoutNav />;
+}
+
+function RootLayoutNav() {
+  const account = useAccountStore((state) => state.account);
+
+  useEffect(() => {
+    if (!account) {
+      router.replace('/get-started');
+    }
+  }, [account]);
+
   return (
-    <Stack>
-      <Stack.Screen name="(home)" options={{ headerShown: false }} />
-      <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack>
+        <Stack.Screen name="(home)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+      </Stack>
+    </GestureHandlerRootView>
   );
 }
