@@ -12,5 +12,9 @@ export const Text = ({ children, ...props }: NativeTextProps) => {
 };
 
 const _styles = createStyleSheet((theme) => ({
-  text: {},
+  text: {
+    fontFamily: 'Manrope_600Regular',
+    color: theme.colors.neutral[300],
+    fontSize: theme.fontSizes.md,
+  },
 }));
