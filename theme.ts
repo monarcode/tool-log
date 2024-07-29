@@ -1,13 +1,35 @@
-const colors = {
+export const colors = {
   white: '#ffffff',
-  azureRadiance: '#007AFF',
-  limedSpruce: '#38434D',
-  cornflowerBlue: '#6366F1',
-  astral: '#2E78B7',
+  primary: '#2D2966',
+  neutral: {
+    100: '#776D6A',
+    200: '#5C4F4A',
+    300: '#413C3A',
+  },
+  gray: '#D9D5D4',
+  dark: '#0A0A0A',
 } as const;
+
+const fontSizes = {
+  xs: 10,
+  sm: 12,
+  md: 14,
+  lg: 16,
+  xl: 18,
+  xxl: 20,
+};
+
+const fontFamily = {
+  light: 'Manrope_300Light',
+  regular: 'Manrope_400Regular',
+  medium: 'Manrope_500Medium',
+  semiBold: 'Manrope_600SemiBold',
+};
 
 export const lightTheme = {
   colors,
+  fontSizes,
+  fontFamily,
   components: {
     container: {
       alignItems: 'center',
@@ -23,7 +45,7 @@ export const lightTheme = {
     },
     button: {
       alignItems: 'center',
-      backgroundColor: colors.cornflowerBlue,
+      backgroundColor: colors.white,
       borderRadius: 24,
       elevation: 5,
       flexDirection: 'row',
@@ -48,7 +70,7 @@ export const lightTheme = {
       fontWeight: 'bold',
     },
     subtitle: {
-      color: colors.limedSpruce,
+      color: colors.neutral[100],
       fontSize: 36,
     },
   },
@@ -57,5 +79,7 @@ export const lightTheme = {
     md: 4,
     lg: 8,
     xl: 12,
+    xxl: 16,
+    containerMargin: 24,
   },
 } as const;
