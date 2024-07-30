@@ -1,6 +1,6 @@
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
@@ -53,6 +53,12 @@ const ToolDetailScreen = () => {
 
   const tools = useInventoryStore((store) => store.tools);
   const getTool = tools.filter((tool) => tool.id == id)[0];
+
+  const handleEditTool = () => {
+    setShowOption((option) => !option);
+    router.navigate(`/edit-tool/${getTool.id}`)
+  }
+
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
       {toastVisible && (
@@ -70,7 +76,7 @@ const ToolDetailScreen = () => {
         </View>
         {showOption && (
           <View style={styles.selectCard}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleEditTool}>
               <Text style={styles.selectText}>Edit Tool</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleDelete}>
@@ -103,8 +109,8 @@ const ToolDetailScreen = () => {
               <View style={styles.detailCon}>
                 <View style={styles.subDetailCon}>
                   <Text style={styles.category}>Current Status</Text>
-                  <View style={[getTool.isAvailable?styles.successTagCon:styles.errorTagCon]}>
-                    <View style={[getTool.isAvailable?styles.successDot: styles.errorDot]} />
+                  <View style={[getTool.isAvailable ? styles.successTagCon : styles.errorTagCon]}>
+                    <View style={[getTool.isAvailable ? styles.successDot : styles.errorDot]} />
                     <Text style={{ fontSize: 8.72, fontWeight: '400' }}>
                       {getTool.isAvailable ? 'Available' : 'Unavaiable'}
                     </Text>
@@ -119,7 +125,6 @@ const ToolDetailScreen = () => {
               </View>
 
               <Text style={styles.description}>{getTool.description}</Text>
-             
             </View>
           </View>
         )}
@@ -229,9 +234,8 @@ const _styles = createStyleSheet((theme) => ({
     lineHeight: 19.6,
   },
   toolImage: {
-    width: '100%',
+    width: 'auto',
     height: 400,
-    marginTop: -20,
     zIndex: 2,
   },
   borderLine: {
