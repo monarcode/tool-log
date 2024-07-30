@@ -6,6 +6,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { createStyleSheet, useStyles } from 'react-native-unistyles';
 
 import { Text } from './text';
 
@@ -24,6 +25,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   label,
 }) => {
   const focusProgress = useSharedValue(0);
+  const { styles, theme } = useStyles(_styles);
 
   const animatedContainerStyle = useAnimatedStyle(() => {
     const borderColor = interpolateColor(focusProgress.value, [0, 1], [unfocusedColor, focusColor]);
@@ -43,7 +45,7 @@ export const TextInput: React.FC<TextInputProps> = ({
 
   return (
     <View style={[styles.outerContainer, style]}>
-      {label && <Text style={{ marginBottom: 5 }}>{label}</Text>}
+      {label && <Text style={styles.inputLabel}>{label}</Text>}
       <Animated.View style={[styles.container, containerStyle, animatedContainerStyle]}>
         {icon && <View style={styles.iconContainer}>{icon}</View>}
         <NativeTextInput
@@ -59,7 +61,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const _styles = createStyleSheet((theme) => ({
   outerContainer: {
     width: 'auto',
     overflow: 'hidden',
@@ -79,7 +81,12 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
   },
-});
+  inputLabel: {
+    fontSize: 14,
+    fontFamily: theme.fontFamily.regular,
+    marginBottom: 5,
+  },
+}));
 
 interface TextInputProps {
   placeholder?: string;
