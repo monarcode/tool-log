@@ -16,6 +16,7 @@ import Toast from '~/components/shared/toast';
 import CreateToolPopup, { Payload } from '~/modules/add-tool/create-tool-popup';
 import { useInventoryStore } from '~/store/inventory.store';
 
+export const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 const AddToolScreen = () => {
@@ -24,7 +25,6 @@ const AddToolScreen = () => {
   const [toolName, setToolName] = useState('');
   const [description, setDescription] = useState('');
 
-  const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
   const [isAddingTool, setIsAddingTool] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);

@@ -15,7 +15,7 @@ const MyToolsScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const handleTextSearch = (text?: string) => setSearchQuery(text as string);
   const $tools = useInventoryStore((store) => store.tools);
-  const tools = $tools.filter((tool) => tool.name.toLowerCase().match(searchQuery));
+  const tools = $tools.filter((tool) => tool.name.toLowerCase().includes(searchQuery.toLowerCase()));
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
       <View style={styles.mainContainer}>
