@@ -3,7 +3,7 @@ import { TextInput, View } from '~/components/shared';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { ScrollView, TouchableOpacity } from 'react-native';
 import GoBack from '~/components/go-back';
-import Tool, { TOOL_STATUS } from '~/components/Tool';
+import Tool, { TOOL_STATUS } from '~/modules/my-tools/tool';
 import { useState } from 'react';
 import Header from '~/components/header';
 const topInset = UnistylesRuntime.insets.top;
