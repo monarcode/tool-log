@@ -1,13 +1,14 @@
-import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
-import { Button, Text, View } from '~/components/shared';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Entypo from '@expo/vector-icons/Entypo';
-import { Image, ScrollView, TouchableOpacity } from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { Image, ScrollView, TouchableOpacity } from 'react-native';
+import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
+
 import GoBack from '~/components/go-back';
+import { Button, Text, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
 import { useInventoryStore } from '~/store/inventory.store';
-import { useLocalSearchParams } from 'expo-router';
 import categories, { CATEGORY } from '~/utils/categories';
 
 const topInset = UnistylesRuntime.insets.top;
@@ -19,21 +20,10 @@ const ToolDetailScreen = () => {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
+  const { updateTool } = useInventoryStore((store) => store);
   const { id } = useLocalSearchParams();
   const handleToggle = () => {
     setShowOption((option) => !option);
-  };
-
-  const handleCollectTool = () => {
-    setToastMessage('Tool collected successfully!');
-    setToastType('success');
-    setToastVisible(true);
-  };
-
-  const handleReturnTool = () => {
-    setToastMessage('Tool returned!');
-    setToastType('info');
-    setToastVisible(true);
   };
 
   useEffect(() => {
@@ -97,8 +87,8 @@ const ToolDetailScreen = () => {
               <View style={styles.detailCon}>
                 <View style={styles.subDetailCon}>
                   <Text style={styles.category}>Current Status</Text>
-                  <View style={styles.successTagCon}>
-                    <View style={styles.successDot} />
+                  <View style={[getTool.isAvailable?styles.successTagCon:styles.errorTagCon]}>
+                    <View style={[getTool.isAvailable?styles.successDot: styles.errorDot]} />
                     <Text style={{ fontSize: 8.72, fontWeight: '400' }}>
                       {getTool.isAvailable ? 'Available' : 'Unavaiable'}
                     </Text>
@@ -113,16 +103,11 @@ const ToolDetailScreen = () => {
               </View>
 
               <Text style={styles.description}>{getTool.description}</Text>
-              {/* <View style={styles.toolsBtns}>
-                <Button onPress={handleCollectTool}>Collect Tool</Button>
-                <Button type="secondary" onPress={handleReturnTool}>
-                  Return Tool
-                </Button>
-              </View> */}
+             
             </View>
           </View>
         )}
-        <View></View>
+        <View />
       </View>
     </ScrollView>
   );
@@ -187,6 +172,12 @@ const _styles = createStyleSheet((theme) => ({
     borderWidth: 0.5,
     borderRadius: 8,
   },
+  errorDot: {
+    width: 4.98,
+    height: 4.98,
+    backgroundColor: "red",
+    borderRadius: 3,
+  },
   successDot: {
     width: 4.98,
     height: 4.98,
@@ -208,7 +199,7 @@ const _styles = createStyleSheet((theme) => ({
     gap: 4,
     backgroundColor: theme.colors.errorTag,
     borderRadius: 14,
-    width: 27.92,
+    width: 64,
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
