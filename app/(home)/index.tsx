@@ -8,7 +8,6 @@ import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unis
 import AddTool from '~/assets/icons/add-tool.svg';
 import MyTools from '~/assets/icons/my-tools.svg';
 import ScanToolIcon from '~/assets/icons/scan-tag.svg';
-import ToolMgnt from '~/assets/icons/tool-mgnt.svg';
 import Header from '~/components/header';
 import { Text, View } from '~/components/shared';
 import CreateToolPopup from '~/modules/add-tool/create-tool-popup';
@@ -28,15 +27,15 @@ const HomeScreen = () => {
     router.push('/add-tool');
   }, []);
 
-  const handleScanTool = 
-  // useCallback(
+  const handleScanTool =
+    // useCallback(
     () => {
-    if (isScanningTool) return;
+      if (isScanningTool) return;
 
-    setIsScanningTool(true);
-    setIsBottomSheetVisible(true);
-    bottomSheetRef.current?.expand();
-  }
+      setIsScanningTool(true);
+      setIsBottomSheetVisible(true);
+      bottomSheetRef.current?.expand();
+    };
   // , [isScanningTool]);
 
   const handleSheetChanges = useCallback((index: number) => {
@@ -49,13 +48,10 @@ const HomeScreen = () => {
     setIsScanningTool(false);
     setIsBottomSheetVisible(false);
   };
-
-  
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Header showSort={false} />
-
         <View style={styles.content}>
           <Image
             source={require('../../assets/logo.png')}
@@ -81,14 +77,6 @@ const HomeScreen = () => {
                 <MyTools style={styles.icon} />
 
                 <Text style={styles.label}>My tools</Text>
-              </Pressable>
-            </Link>
-
-            <Link href="/manage-tool" asChild>
-              <Pressable style={styles.action}>
-                <ToolMgnt style={styles.icon} />
-
-                <Text style={styles.label}>Management</Text>
               </Pressable>
             </Link>
           </View>
@@ -142,7 +130,7 @@ const _styles = createStyleSheet((theme) => ({
   action: {
     flex: 1,
     minWidth: '44%',
-    maxWidth: '48%',
+    // maxWidth: '48%',
     height: 200,
     backgroundColor: '#fafafa',
     borderRadius: 10,

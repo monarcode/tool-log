@@ -1,6 +1,7 @@
 export const colors = {
   white: '#ffffff',
   primary: '#2D2966',
+  pink: '#F9DCDC',
   neutral: {
     100: '#776D6A',
     200: '#5C4F4A',

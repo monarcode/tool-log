@@ -1,3 +1,5 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, Pressable } from 'react-native';
@@ -11,13 +13,13 @@ export interface ToolProps {
   id: string | number;
   title: string;
   category: string;
-  description: string;
   status: TOOL_STATUS;
   lastUsed: Date | string | number;
+  onPress: () => void;
 }
 
-const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps) => {
-  const { styles } = useStyles(_style);
+const ToolKit = ({ id, category, title, lastUsed, status, onPress }: ToolProps) => {
+  const { styles } = useStyles(_styles);
   const isAvailable = status === 'available';
   const router = useRouter();
   const goToDetailsScreen = () => {
@@ -25,101 +27,86 @@ const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps)
   };
   return (
     <Pressable onPress={goToDetailsScreen} style={styles.toolWrapper}>
-      <View
-        style={{
-          width: 50,
-          height: 50,
-          padding: 4,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+      <View style={styles.toolImageContainer}>
         <Image
-          resizeMode="cover"
+          resizeMode="contain"
           style={styles.toolImage}
           source={categories(category as CATEGORY)}
         />
       </View>
-
       <View style={styles.toolContent}>
         <View style={styles.titleWrapper}>
           <Text style={styles.title}>{title}</Text>
-          <Text style={styles.category}>{category}</Text>
         </View>
-        <Text style={styles.description}>{description.slice(0, 30)}...</Text>
-        <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
-          <Text style={styles.timeUsed}>Last Used:</Text>
-          <Text style={styles.category}>{new Date(lastUsed).toLocaleString()}</Text>
+        <Text style={styles.date}>{new Date(lastUsed).toLocaleString()}</Text>
+        <View
+          style={[styles.status, isAvailable ? styles.availableStatus : styles.unavailableStatus]}>
+          <View style={[isAvailable ? styles.availableIndicator : styles.unavailableIndicator]} />
+          <Text style={styles.statusText}>{status}</Text>
         </View>
       </View>
-
-      <View
-        style={[styles.status, isAvailable ? styles.availableStatus : styles.unavailableStatus]}>
-        <View style={[isAvailable ? styles.availableIndicator : styles.unavailableIndicator]} />
-        <Text style={styles.statusText}>{status}</Text>
-      </View>
+      <TouchableOpacity onPress={onPress} style={styles.icon}>
+        <Ionicons name="ellipsis-vertical" size={18} color="black" />
+      </TouchableOpacity>
     </Pressable>
   );
 };
 
-const _style = createStyleSheet((theme) => ({
+const _styles = createStyleSheet((theme) => ({
   toolWrapper: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
     alignItems: 'flex-start',
     gap: 16,
     marginVertical: 16,
   },
   toolContent: {
-    justifyContent: 'space-between',
-    // flex: 1,
+    flex: 1,
   },
   titleWrapper: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 15,
+  },
+  toolImageContainer: {
+    width: 73,
+    height: 73,
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: theme.colors.pink,
   },
   toolImage: {
     width: '100%',
     height: '100%',
+    // aspectRatio: 1,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '500',
+    fontSize: 14,
+    fontFamily: theme.fontFamily.regular,
     color: theme.colors.text,
   },
-  category: {
+  date: {
     fontSize: 12,
-    fontWeight: '400',
+    marginVertical: 8,
+    fontFamily: theme.fontFamily.light,
     color: theme.colors.text2,
-  },
-  timeUsed: {
-    fontSize: 12,
-    fontWeight: '400',
-    fontFamily: theme.fontFamily.medium,
-  },
-  description: {
-    fontSize: 13,
-    marginVertical: 2,
-    fontWeight: '400',
-    color: theme.colors.text2,
-    lineHeight: 19.5,
   },
   status: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    padding: 5,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'center',
+    gap: 4,
+    width: '30%',
     borderRadius: 20,
   },
   statusText: {
-    fontFamily: theme.fontFamily.medium,
-    fontSize: 10,
+    fontSize: 8.72,
     textTransform: 'capitalize',
+    fontFamily: theme.fontFamily.light,
   },
   availableIndicator: {
-    width: 10,
-    height: 10,
+    width: 4.92,
+    height: 4.92,
     borderRadius: 10,
     backgroundColor: theme.colors.success,
   },
@@ -127,14 +114,21 @@ const _style = createStyleSheet((theme) => ({
     backgroundColor: theme.colors.successTag,
   },
   unavailableIndicator: {
-    width: 10,
-    height: 10,
+    width: 4.92,
+    height: 4.92,
     borderRadius: 10,
     backgroundColor: 'red',
   },
   unavailableStatus: {
     backgroundColor: theme.colors.errorTag,
   },
+  icon: {
+    alignSelf: 'flex-end',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 5,
+    borderColor: theme.colors.border,
+  },
 }));
 
-export default Tool;
+export default ToolKit;
