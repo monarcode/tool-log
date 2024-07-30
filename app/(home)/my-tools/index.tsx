@@ -1,75 +1,21 @@
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
-import { TextInput, View } from '~/components/shared';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { ScrollView, TouchableOpacity } from 'react-native';
+import { View } from '~/components/shared';
+import { ScrollView } from 'react-native';
 import GoBack from '~/components/go-back';
 import Tool, { TOOL_STATUS } from '~/modules/my-tools/tool';
 import { useState } from 'react';
 import Header from '~/components/header';
+import { useInventoryStore } from '~/store/inventory.store';
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 
-export const toolsData = [
-  {
-    title: 'Electric drilling',
-    category: 'Machine',
-    description:
-      "Drilling machine ak47 is the world best drilling machine, it's the strongest drilling",
-    status: 'available',
-    lastUsed: new Date('2024-07-29T12:34:56Z'),
-    id: '2',
-  },
-  {
-    title: 'Laser Level',
-    category: 'Measurement',
-    description:
-      'Provides accurate level and alignment measurements with bright laser lines for visibility.',
-    status: 'unavailable',
-    lastUsed: new Date('2024-07-28T09:15:30Z'),
-    id: '3',
-  },
-  {
-    title: 'Angle Grinder',
-    category: 'Machine',
-    description:
-      'A versatile tool for grinding, cutting, and polishing with a powerful motor and ergonomic design.',
-    status: 'available',
-    lastUsed: new Date('2024-07-25T17:22:14Z'),
-    id: '4',
-  },
-  {
-    title: 'Digital Caliper',
-    category: 'Measurement',
-    description:
-      'High-precision digital caliper for measuring internal and external dimensions with an easy-to-read display.',
-    status: 'available',
-    lastUsed: new Date('2024-07-30T08:45:00Z'),
-    id: '5',
-  },
-  {
-    title: 'Heat Gun',
-    category: 'Machine',
-    description:
-      'Multi-functional heat gun with adjustable temperature settings for stripping paint, thawing pipes, and more.',
-    status: 'unavailable',
-    lastUsed: new Date('2024-07-20T14:10:50Z'),
-    id: '6',
-  },
-  {
-    title: 'Oscillating Tool',
-    category: 'Machine',
-    description: 'An essential tool for cutting, sanding, scraping, and grinding in tight spaces.',
-    status: 'available',
-    lastUsed: new Date('2024-07-22T10:55:33Z'),
-    id: '7',
-  },
-];
 
 const MyToolsScreen = () => {
   const { styles } = useStyles(_styles);
   const [searchQuery, setSearchQuery] = useState('');
   const handleTextSearch = (text?: string) => setSearchQuery(text as string);
-  const tools = toolsData.filter((tool) => tool.title.toLowerCase().match(searchQuery));
+  const $tools = useInventoryStore((store) => store.tools);
+  const tools = $tools.filter((tool) => tool.name.toLowerCase().includes(searchQuery.toLowerCase()));
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
       <View style={styles.mainContainer}>
@@ -82,11 +28,11 @@ const MyToolsScreen = () => {
         {tools.map((tool, index) => {
           return (
             <Tool
-              title={tool.title}
+              title={tool.name}
               category={tool.category}
               description={tool.description}
-              status={tool.status as TOOL_STATUS}
-              lastUsed={tool.lastUsed}
+              status={tool.isAvailable ? 'available' : ('unavailable' as TOOL_STATUS)}
+              lastUsed={tool.updatedAt}
               id={tool.id}
               key={index}
             />
@@ -96,6 +42,7 @@ const MyToolsScreen = () => {
     </ScrollView>
   );
 };
+
 export default MyToolsScreen;
 
 const _styles = createStyleSheet((theme) => ({

@@ -6,6 +6,9 @@ import { Image, ScrollView, TouchableOpacity } from 'react-native';
 import { useEffect, useState } from 'react';
 import GoBack from '~/components/go-back';
 import Toast from '~/components/shared/toast';
+import { useInventoryStore } from '~/store/inventory.store';
+import { useLocalSearchParams } from 'expo-router';
+import categories, { CATEGORY } from '~/utils/categories';
 
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
@@ -16,7 +19,7 @@ const ScanToolDetailScreen = () => {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
-
+  const { id } = useLocalSearchParams();
   const handleToggle = () => {
     setShowOption((option) => !option);
   };
@@ -42,6 +45,8 @@ const ScanToolDetailScreen = () => {
     }
   }, [toastVisible]);
 
+  const tools = useInventoryStore((store) => store.tools);
+  const getTool = tools.filter((tool) => tool.id == id)[0];
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
       {toastVisible && (
@@ -67,45 +72,57 @@ const ScanToolDetailScreen = () => {
             </TouchableOpacity>
           </View>
         )}
-        <Image
-          resizeMode="contain"
-          style={styles.toolImage}
-          source={require('../../../assets/images/tool.png')}
-        />
-        <View style={styles.borderLine} />
-        <View style={styles.bodyContainer}>
-          <View style={styles.textCon}>
-            <Text style={styles.title}>Electric drilling</Text>
-            <Text style={styles.category}>Machine</Text>
+        {!getTool ? (
+          <View>
+            <Image
+              resizeMode="contain"
+              style={styles.toolImage}
+              source={require('../../../assets/images/empty-box.png')}
+            />
+            <Text style={styles.notFoundText}>Tool not found</Text>
           </View>
-          <View style={styles.detailCon}>
-            <View style={styles.subDetailCon}>
-              <Text style={styles.category}>Current Status</Text>
-              <View style={styles.successTagCon}>
-                <View style={styles.successDot} />
-                <Text style={{ fontSize: 8.72, fontWeight: '400' }}>Available</Text>
+        ) : (
+          <View>
+            <Image
+              resizeMode="contain"
+              style={styles.toolImage}
+              source={categories(getTool.category as CATEGORY)}
+            />
+            <View style={styles.borderLine} />
+            <View style={styles.bodyContainer}>
+              <View style={styles.textCon}>
+                <Text style={styles.title}>{getTool.name}</Text>
+                <Text style={styles.category}>{getTool.category}</Text>
               </View>
-            </View>
-            <View style={styles.subDetailCon}>
-              <Text style={styles.category}>No of tools available</Text>
-              <View style={styles.errorTagCon}>
-                <Text style={{ fontSize: 8.72, fontWeight: '400' }}>17</Text>
+              <View style={styles.detailCon}>
+                <View style={styles.subDetailCon}>
+                  <Text style={styles.category}>Current Status</Text>
+                  <View style={styles.successTagCon}>
+                    <View style={styles.successDot} />
+                    <Text style={{ fontSize: 8.72, fontWeight: '400' }}>
+                      {getTool.isAvailable ? 'Available' : 'Unavaiable'}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.subDetailCon}>
+                  <Text style={styles.category}>No of tools available</Text>
+                  <View style={styles.errorTagCon}>
+                    <Text style={{ fontSize: 8.72, fontWeight: '400' }}>17</Text>
+                  </View>
+                </View>
               </View>
-            </View>
-          </View>
 
-          <Text style={styles.description}>
-            This tool is intended for light-duty applications where it must drill tiny holes
-            quickly. Drilling small holes requires a high speed and hand feed. Bolts and nuts are
-            used to mount the machine's base on the floor or on a bench.
-          </Text>
-          <View style={styles.toolsBtns}>
-            <Button onPress={handleCollectTool}>Collect Tool</Button>
-            <Button type="secondary" onPress={handleReturnTool}>
-              Return Tool
-            </Button>
+              <Text style={styles.description}>{getTool.description}</Text>
+              <View style={styles.toolsBtns}>
+                <Button onPress={handleCollectTool}>Collect Tool</Button>
+                <Button type="secondary" onPress={handleReturnTool}>
+                  Return Tool
+                </Button>
+              </View>
+            </View>
           </View>
-        </View>
+        )}
+        <View></View>
       </View>
     </ScrollView>
   );
@@ -124,6 +141,11 @@ const _styles = createStyleSheet((theme) => ({
   },
   bodyContainer: {
     padding: theme.margins.containerMargin,
+  },
+  notFoundText: {
+    fontSize: 30,
+    textAlign: 'center',
+    fontFamily: theme.fontFamily.semiBold,
   },
   header: {
     flexDirection: 'row',

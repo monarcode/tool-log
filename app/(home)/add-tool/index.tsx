@@ -1,4 +1,5 @@
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Keyboard,
@@ -11,8 +12,11 @@ import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unis
 
 import GoBack from '~/components/go-back';
 import { Button, Dropdown, Text, TextInput, View } from '~/components/shared';
-import CreateToolPopup from '~/modules/add-tool/create-tool-popup';
+import Toast from '~/components/shared/toast';
+import CreateToolPopup, { Payload } from '~/modules/add-tool/create-tool-popup';
+import { useInventoryStore } from '~/store/inventory.store';
 
+export const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 const AddToolScreen = () => {
@@ -21,38 +25,51 @@ const AddToolScreen = () => {
   const [toolName, setToolName] = useState('');
   const [description, setDescription] = useState('');
 
-  const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
   const [isAddingTool, setIsAddingTool] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
-
+  const [toolData, setToolData] = useState<Payload>(null!);
   // Memoize snapPoints
   const snapPoints = useMemo(() => ['45%'], []);
-
+  const router = useRouter();
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
-  const handleAddTool = useCallback(() => {
-    console.log('Adding tool:', { toolName, category, description });
+  const handleAddTool = () => {
+    if (!canAdd) return;
     if (isAddingTool) return;
 
     setIsAddingTool(true);
     setIsBottomSheetVisible(true);
     bottomSheetRef.current?.expand();
+    setToolData({
+      name: toolName,
+      description,
+      category,
+    });
 
-    setTimeout(() => {
-      setIsBottomSheetVisible(false);
-      bottomSheetRef.current?.close();
-      // TODO: Add tool to the  NFC tag
-      setIsAddingTool(false);
-    }, 4000);
-  }, [isAddingTool]);
+    // TODO: Add tool to the  NFC tag
+    setIsAddingTool(false);
+  };
 
+  const canAdd = Boolean(toolName && category && description);
+
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
+  const closeBottomSheet = () => {
+    if (!bottomSheetRef) return;
+    bottomSheetRef?.current?.close();
+    setIsBottomSheetVisible(false);
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+      {toastVisible && (
+        <Toast message={toastMessage} type={toastType} onClose={() => setToastVisible(false)} />
+      )}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
           <View style={styles.row}>
@@ -93,8 +110,14 @@ const AddToolScreen = () => {
                 inputStyle={{ alignSelf: 'flex-start' }}
                 containerStyle={{ height: 125, marginBottom: 24 }}
               />
-              <View style={{ width: '100%', marginHorizontal: 'auto', marginTop: 32 }}>
-                <Button onPress={handleAddTool} disabled={isAddingTool}>
+              <View
+                style={{
+                  width: '100%',
+                  marginHorizontal: 'auto',
+                  marginTop: 32,
+                  opacity: canAdd ? 1 : 0.6,
+                }}>
+                <Button onPress={handleAddTool} disabled={!canAdd}>
                   Add Tool
                 </Button>
               </View>
@@ -108,7 +131,11 @@ const AddToolScreen = () => {
             onChange={handleSheetChanges}
             enablePanDownToClose>
             <BottomSheetView style={styles.sheetContentContainer}>
-              <CreateToolPopup />
+              <CreateToolPopup
+                payload={toolData}
+                type="write"
+                closeBottomSheet={closeBottomSheet}
+              />
             </BottomSheetView>
           </BottomSheet>
         </View>
