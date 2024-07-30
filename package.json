@@ -64,7 +64,12 @@
   },
   "eslintConfig": {
     "extends": "universe/native",
-    "root": true
+    "root": true,
+    "rules": {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      "no-console": ["warn", { "allow": ["warn", "error"] }]
+    }
   },
   "expo": {
     "install": {
