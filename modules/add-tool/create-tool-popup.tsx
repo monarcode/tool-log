@@ -1,12 +1,14 @@
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { Alert } from 'react-native';
 import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
+import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import uuid from 'react-native-uuid';
+
 import ReadTag from '~/assets/icons/read-tag.svg';
 import { Button, Text, View } from '~/components/shared';
-import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useInventoryStore } from '~/store/inventory.store';
-import uuid from 'react-native-uuid';
+
 export interface Payload {
   name: string;
   description: string;
@@ -83,9 +85,9 @@ const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToo
   useEffect(() => {
     initializeNfc();
     if (isSupported && isEnabled) {
-      type == 'read' && readNdef();
+      type === 'read' && readNdef();
 
-      if (type == 'write' && payload) {
+      if (type === 'write' && payload) {
         const $id = uuid.v4().toString();
         writeNdef($id as string, () => {
           addInventoryStore({
@@ -126,9 +128,11 @@ const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToo
             : 'Approach an NFC Tag'}
         </Text>
       </View>
-      <Button onPress={closeBottomSheet} containerStyle={styles.button} type="secondary">
-        Cancel
-      </Button>
+      <View style={{ width: 282, marginHorizontal: 'auto', marginTop: 32 }}>
+        <Button onPress={closeBottomSheet} type="secondary">
+          Cancel
+        </Button>
+      </View>
     </View>
   );
 };
