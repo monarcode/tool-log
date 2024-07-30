@@ -1,7 +1,9 @@
-import { View, Text, Image, Pressable } from 'react-native';
-import React from 'react';
-import { createStyleSheet, useStyles } from 'react-native-unistyles';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import { Image, Pressable } from 'react-native';
+import { createStyleSheet, useStyles } from 'react-native-unistyles';
+
+import { View, Text } from '~/components/shared';
 
 export type TOOL_STATUS = 'available' | 'unavailable';
 export interface ToolProps {
@@ -15,7 +17,7 @@ export interface ToolProps {
 
 const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps) => {
   const { styles } = useStyles(_style);
-  const isAvailable = status == 'available';
+  const isAvailable = status === 'available';
   const router = useRouter();
   const goToDetailsScreen = () => {
     router.navigate(`/my-tools/${id}`);
@@ -25,7 +27,7 @@ const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps)
       <Image
         resizeMode="contain"
         style={styles.toolImage}
-        source={require('../assets/images/tool.png')}
+        source={require('~/assets/images/tool.png')}
       />
       <View style={styles.toolContent}>
         <View style={styles.titleWrapper}>
