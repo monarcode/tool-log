@@ -1,5 +1,7 @@
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { useRef, useCallback, useMemo, useState } from 'react';
 import { Keyboard, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
@@ -9,12 +11,38 @@ import ScanToolIcon from '~/assets/icons/scan-tag.svg';
 import ToolMgnt from '~/assets/icons/tool-mgnt.svg';
 import Header from '~/components/header';
 import { Text, View } from '~/components/shared';
+import CreateToolPopup from '~/modules/add-tool/create-tool-popup';
 
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 
 const HomeScreen = () => {
   const { styles } = useStyles(_styles);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
+  const [isAddingTool, setIsAddingTool] = useState(false);
+
+  // Memoize snapPoints
+  const snapPoints = useMemo(() => ['45%'], []);
+
+  const handleCreateTool = useCallback(() => {
+    if (isAddingTool) return;
+
+    setIsAddingTool(true);
+    setIsBottomSheetVisible(true);
+    bottomSheetRef.current?.expand();
+
+    setTimeout(() => {
+      setIsBottomSheetVisible(false);
+      bottomSheetRef.current?.close();
+      router.push('/add-tool');
+      setIsAddingTool(false);
+    }, 3000);
+  }, [isAddingTool]);
+
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
 
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
@@ -35,13 +63,11 @@ const HomeScreen = () => {
               <Text style={styles.label}>Scan Tool</Text>
             </Pressable>
 
-            <Link href="/my-tools" asChild>
-              <Pressable style={styles.action}>
-                <AddTool style={styles.icon} />
+            <Pressable style={styles.action} onPress={handleCreateTool} disabled={isAddingTool}>
+              <AddTool style={styles.icon} />
 
-                <Text style={styles.label}>Add New Tool</Text>
-              </Pressable>
-            </Link>
+              <Text style={styles.label}>Add New Tool</Text>
+            </Pressable>
 
             <Link href="/my-tools" asChild>
               <Pressable style={styles.action}>
@@ -60,6 +86,17 @@ const HomeScreen = () => {
             </Link>
           </View>
         </View>
+        {isBottomSheetVisible && <View style={styles.overlay} />}
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={-1}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}
+          enablePanDownToClose>
+          <BottomSheetView style={styles.sheetContentContainer}>
+            <CreateToolPopup />
+          </BottomSheetView>
+        </BottomSheet>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -114,6 +151,24 @@ const _styles = createStyleSheet((theme) => ({
   icon: {
     width: 64,
     aspectRatio: 1,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 0,
+  },
+  sheetContainer: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: theme.colors.gray,
+  },
+  sheetContentContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
 }));
 
