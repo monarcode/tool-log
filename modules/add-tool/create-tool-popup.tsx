@@ -1,45 +1,132 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
-import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
 import ReadTag from '~/assets/icons/read-tag.svg';
 import { Button, Text, View } from '~/components/shared';
+import { Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useInventoryStore } from '~/store/inventory.store';
+import uuid from 'react-native-uuid';
+export interface Payload {
+  name: string;
+  description: string;
+  category: string;
+  isAvailable?: boolean;
+}
 
-const CreateToolPopup = () => {
+interface CreateToolPopupProps {
+  closeBottomSheet: any;
+  type?: 'read' | 'write';
+  payload?: Payload;
+}
+
+const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToolPopupProps) => {
   const { styles, theme } = useStyles(_styles);
+  const [scanning, setScanning] = useState(false);
+  const [isSupported, setNfcSupported] = useState(false);
+  const [isEnabled, setNfcEnabled] = useState(false);
+  const router = useRouter();
+  const addInventoryStore = useInventoryStore((s) => s.addTool);
+
+  const initializeNfc = async () => {
+    const supported = await NfcManager.isSupported();
+    setNfcSupported(supported);
+
+    if (supported) {
+      const enabled = await NfcManager.isEnabled();
+      setNfcEnabled(enabled);
+    } else {
+      // router.navigate("/scan-tool/2")
+      // Alert.alert('NFC is not supported on this device');
+    }
+  };
+
+  async function readNdef() {
+    try {
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+      const tag = await NfcManager.getTag();
+      if (tag && tag?.ndefMessage.length >= 0) {
+        const data = tag?.ndefMessage[0].payload;
+        router.navigate(`/scan-tool/${data}`);
+      }
+      return null;
+    } catch (ex) {
+      return;
+    } finally {
+      NfcManager.close();
+      NfcManager.cancelTechnologyRequest();
+    }
+  }
+
+  async function writeNdef(data: string, callback = () => undefined) {
+    let result = false;
+    try {
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+
+      const bytes = Ndef.encodeMessage([Ndef.textRecord(data)]);
+
+      if (bytes) {
+        await NfcManager.ndefHandler // STEP 2
+          .writeNdefMessage(bytes); // STEP 3
+        result = true;
+        callback();
+      }
+    } catch (ex) {
+      console.warn(ex);
+    } finally {
+      NfcManager.cancelTechnologyRequest();
+    }
+
+    return result;
+  }
 
   useEffect(() => {
-    async function readNdef() {
-      try {
-        // register for the NFC tag with NDEF in it
-        await NfcManager.requestTechnology(NfcTech.Ndef);
-        // the resolved tag object will contain `ndefMessage` property
-        const tag = await NfcManager.getTag();
-        console.warn('Tag found', tag);
-      } catch (ex) {
-        console.warn('Oops!', ex);
-      } finally {
-        // stop the nfc scanning
-        NfcManager.cancelTechnologyRequest();
+    initializeNfc();
+    if (isSupported && isEnabled) {
+      type == 'read' && readNdef();
+
+      if (type == 'write' && payload) {
+        const $id = uuid.v4().toString();
+        writeNdef($id as string, () => {
+          addInventoryStore({
+            id: $id,
+            category: payload.category,
+            description: payload.description,
+            name: payload.name,
+          });
+          router.push(`/my-tools`);
+        });
       }
     }
 
-    readNdef();
-
-    return () => {
-      NfcManager.cancelTechnologyRequest();
-    };
+    // TESTING
+    // setTimeout(()=>{
+    //   router.push(`/scan-tool/176fd963-7d55-4c30-be7e-e64b393b9d5e`);
+    // }, 100)
   }, []);
 
   return (
     <View style={styles.container}>
       <View style={{ alignItems: 'center' }}>
-        <Text style={styles.label}>Ready to Scan</Text>
-        <ReadTag style={styles.icon} />
+        <Text style={styles.label}>
+          {!isSupported || !isEnabled ? 'NFC is not supported or enabled' : 'Ready to Scan'}
+        </Text>
+
+        <ReadTag
+          style={[
+            styles.icon,
+            {
+              opacity: !isSupported || !isEnabled ? 0.4 : 1,
+            },
+          ]}
+        />
         <Text style={[styles.label, { color: theme.colors.gray, fontSize: 16 }]}>
-          Approach an NFC Tag
+          {!isSupported || !isEnabled
+            ? "Oops! Looks like you don't have NFC Enabled"
+            : 'Approach an NFC Tag'}
         </Text>
       </View>
-      <Button containerStyle={styles.button} type="secondary">
+      <Button onPress={closeBottomSheet} containerStyle={styles.button} type="secondary">
         Cancel
       </Button>
     </View>

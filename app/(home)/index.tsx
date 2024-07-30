@@ -21,7 +21,6 @@ const HomeScreen = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
   const [isScanningTool, setIsScanningTool] = useState(false);
-
   // Memoize snapPoints
   const snapPoints = useMemo(() => ['45%'], []);
 
@@ -29,25 +28,29 @@ const HomeScreen = () => {
     router.push('/add-tool');
   }, []);
 
-  const handleScanTool = useCallback(() => {
+  const handleScanTool = 
+  // useCallback(
+    () => {
     if (isScanningTool) return;
 
     setIsScanningTool(true);
     setIsBottomSheetVisible(true);
     bottomSheetRef.current?.expand();
-
-    setTimeout(() => {
-      setIsBottomSheetVisible(false);
-      bottomSheetRef.current?.close();
-      router.push('/scan-tool/3');
-      setIsScanningTool(false);
-    }, 4000);
-  }, [isScanningTool]);
+  }
+  // , [isScanningTool]);
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
 
+  const closeBottomSheet = () => {
+    if (!bottomSheetRef) return;
+    bottomSheetRef?.current?.close();
+    setIsScanningTool(false);
+    setIsBottomSheetVisible(false);
+  };
+
+  
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <View style={styles.container}>
@@ -98,7 +101,7 @@ const HomeScreen = () => {
           onChange={handleSheetChanges}
           enablePanDownToClose>
           <BottomSheetView style={styles.sheetContentContainer}>
-            <CreateToolPopup />
+            <CreateToolPopup closeBottomSheet={closeBottomSheet} />
           </BottomSheetView>
         </BottomSheet>
       </View>
