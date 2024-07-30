@@ -1,4 +1,4 @@
-import { Pressable, PressableProps, TextProps } from 'react-native';
+import { Platform, Pressable, PressableProps, TextProps } from 'react-native';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 
 import { Text } from './text'; // Assuming you have a custom Text component
@@ -31,8 +31,12 @@ export const Button = ({
     <Pressable
       style={({ pressed }) => [
         styles.container,
+        pressed && styles.pressed,
         typeof containerStyle === 'function' ? containerStyle({ pressed }) : containerStyle,
       ]}
+      android_ripple={
+        Platform.OS === 'android' ? { color: 'rgba(255, 255, 255, 0.257)' } : undefined
+      }
       {...others}>
       <Text style={[styles.label, labelStyle]}>{children}</Text>
     </Pressable>
@@ -62,6 +66,9 @@ const _styles = createStyleSheet((theme) => ({
         },
       },
     },
+  },
+  pressed: {
+    opacity: 0.8,
   },
   label: {
     fontSize: theme.fontSizes.md, // Button label font size
