@@ -25,21 +25,31 @@ const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps)
   };
   return (
     <Pressable onPress={goToDetailsScreen} style={styles.toolWrapper}>
-      <Image
-        resizeMode="contain"
-        style={styles.toolImage}
-        source={categories(category as CATEGORY)}
-      />
+      <View
+        style={{
+          width: 50,
+          height: 50,
+          padding: 4,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Image
+          resizeMode="cover"
+          style={styles.toolImage}
+          source={categories(category as CATEGORY)}
+        />
+      </View>
+
       <View style={styles.toolContent}>
         <View style={styles.titleWrapper}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.category}>{category}</Text>
         </View>
         <Text style={styles.description}>{description.slice(0, 30)}...</Text>
-        <Text>
+        <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
           <Text style={styles.timeUsed}>Last Used:</Text>
           <Text style={styles.category}>{new Date(lastUsed).toLocaleString()}</Text>
-        </Text>
+        </View>
       </View>
 
       <View
@@ -54,11 +64,14 @@ const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps)
 const _style = createStyleSheet((theme) => ({
   toolWrapper: {
     flexDirection: 'row',
-    padding: 20,
+    paddingHorizontal: 16,
     alignItems: 'flex-start',
+    gap: 16,
+    marginVertical: 16,
   },
   toolContent: {
-    flex: 1,
+    justifyContent: 'space-between',
+    // flex: 1,
   },
   titleWrapper: {
     flexDirection: 'row',
@@ -66,9 +79,8 @@ const _style = createStyleSheet((theme) => ({
     gap: 15,
   },
   toolImage: {
-    width: 50,
-    height: 50,
-    zIndex: 2,
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 18,
@@ -81,24 +93,28 @@ const _style = createStyleSheet((theme) => ({
     color: theme.colors.text2,
   },
   timeUsed: {
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '400',
+    fontFamily: theme.fontFamily.medium,
   },
   description: {
     fontSize: 13,
-    marginVertical: 5,
+    marginVertical: 2,
     fontWeight: '400',
     color: theme.colors.text2,
     lineHeight: 19.5,
   },
   status: {
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     borderRadius: 20,
   },
   statusText: {
-    fontSize: 12,
+    fontFamily: theme.fontFamily.medium,
+    fontSize: 10,
     textTransform: 'capitalize',
   },
   availableIndicator: {
