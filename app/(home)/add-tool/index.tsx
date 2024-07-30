@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -10,6 +11,7 @@ import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unis
 
 import GoBack from '~/components/go-back';
 import { Button, Dropdown, Text, TextInput, View } from '~/components/shared';
+import CreateToolPopup from '~/modules/add-tool/create-tool-popup';
 
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
@@ -20,10 +22,31 @@ const AddToolScreen = () => {
   const [description, setDescription] = useState('');
 
   const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
+  const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
+  const [isAddingTool, setIsAddingTool] = useState(false);
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const handleAddTool = () => {
+  // Memoize snapPoints
+  const snapPoints = useMemo(() => ['45%'], []);
+
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+  const handleAddTool = useCallback(() => {
     console.log('Adding tool:', { toolName, category, description });
-  };
+    if (isAddingTool) return;
+
+    setIsAddingTool(true);
+    setIsBottomSheetVisible(true);
+    bottomSheetRef.current?.expand();
+
+    setTimeout(() => {
+      setIsBottomSheetVisible(false);
+      bottomSheetRef.current?.close();
+      // TODO: Add tool to the  NFC tag
+      setIsAddingTool(false);
+    }, 4000);
+  }, [isAddingTool]);
 
   return (
     <KeyboardAvoidingView
@@ -70,12 +93,24 @@ const AddToolScreen = () => {
                 inputStyle={{ alignSelf: 'flex-start' }}
                 containerStyle={{ height: 125, marginBottom: 24 }}
               />
-
-              <Button onPress={handleAddTool} style={styles.addButton}>
-                Add Tool
-              </Button>
+              <View style={{ width: '100%', marginHorizontal: 'auto', marginTop: 32 }}>
+                <Button onPress={handleAddTool} disabled={isAddingTool}>
+                  Add Tool
+                </Button>
+              </View>
             </View>
           </ScrollView>
+          {isBottomSheetVisible && <View style={styles.overlay} />}
+          <BottomSheet
+            ref={bottomSheetRef}
+            index={-1}
+            snapPoints={snapPoints}
+            onChange={handleSheetChanges}
+            enablePanDownToClose>
+            <BottomSheetView style={styles.sheetContentContainer}>
+              <CreateToolPopup />
+            </BottomSheetView>
+          </BottomSheet>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -128,8 +163,22 @@ const _styles = createStyleSheet((theme) => ({
   contentContainer: {
     marginTop: 50,
   },
-  addButton: {
-    marginTop: 32,
-    width: 282,
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 0,
+  },
+  sheetContainer: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: theme.colors.gray,
+  },
+  sheetContentContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
 }));
