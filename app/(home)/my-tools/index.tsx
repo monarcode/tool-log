@@ -68,6 +68,7 @@ export const toolsData = [
 const MyToolsScreen = () => {
   const { styles } = useStyles(_styles);
   const [searchQuery, setSearchQuery] = useState('');
+  const handleTextSearch = (text?: string) => setSearchQuery(text as string);
   const tools = toolsData.filter((tool) => tool.title.toLowerCase().match(searchQuery));
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
@@ -76,7 +77,7 @@ const MyToolsScreen = () => {
           <View style={styles.header}>
             <GoBack />
           </View>
-          <Header showSort={true} />
+          <Header value={searchQuery} onChangeText={handleTextSearch} showSort={true} />
         </View>
         {tools.map((tool, index) => {
           return (
