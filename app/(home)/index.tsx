@@ -21,6 +21,7 @@ const HomeScreen = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
   const [isAddingTool, setIsAddingTool] = useState(false);
+  const [isScanningTool, setIsScanningTool] = useState(false);
 
   // Memoize snapPoints
   const snapPoints = useMemo(() => ['45%'], []);
@@ -37,8 +38,23 @@ const HomeScreen = () => {
       bottomSheetRef.current?.close();
       router.push('/add-tool');
       setIsAddingTool(false);
-    }, 3000);
+    }, 4000);
   }, [isAddingTool]);
+
+  const handleScanTool = useCallback(() => {
+    if (isScanningTool) return;
+
+    setIsScanningTool(true);
+    setIsBottomSheetVisible(true);
+    bottomSheetRef.current?.expand();
+
+    setTimeout(() => {
+      setIsBottomSheetVisible(false);
+      bottomSheetRef.current?.close();
+      router.push('/scan-tool/3');
+      setIsScanningTool(false);
+    }, 4000);
+  }, [isScanningTool]);
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
@@ -57,7 +73,7 @@ const HomeScreen = () => {
           />
 
           <View style={styles.actions}>
-            <Pressable style={styles.action}>
+            <Pressable style={styles.action} onPress={handleScanTool} disabled={isScanningTool}>
               <ScanToolIcon style={styles.icon} />
 
               <Text style={styles.label}>Scan Tool</Text>

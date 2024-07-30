@@ -1,6 +1,7 @@
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Pressable } from 'react-native';
 import React from 'react';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import { useRouter } from 'expo-router';
 
 export type TOOL_STATUS = 'available' | 'unavailable';
 export interface ToolProps {
@@ -12,11 +13,15 @@ export interface ToolProps {
   lastUsed: Date | string | number;
 }
 
-const Tool = ({ category, description, lastUsed, status, title }: ToolProps) => {
+const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps) => {
   const { styles } = useStyles(_style);
   const isAvailable = status == 'available';
+  const router = useRouter();
+  const goToDetailsScreen = () => {
+    router.navigate(`/my-tools/${id}`);
+  };
   return (
-    <View style={styles.toolWrapper}>
+    <Pressable onPress={goToDetailsScreen} style={styles.toolWrapper}>
       <Image
         resizeMode="contain"
         style={styles.toolImage}
@@ -27,7 +32,7 @@ const Tool = ({ category, description, lastUsed, status, title }: ToolProps) => 
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.category}>{category}</Text>
         </View>
-        <Text style={styles.description}>{description.slice(0, 30)}</Text>
+        <Text style={styles.description}>{description.slice(0, 30)}...</Text>
         <Text>
           <Text style={styles.timeUsed}>Last Used:</Text>
           <Text style={styles.category}>{new Date(lastUsed).toLocaleString()}</Text>
@@ -39,7 +44,7 @@ const Tool = ({ category, description, lastUsed, status, title }: ToolProps) => 
         <View style={[isAvailable ? styles.availableIndicator : styles.unavailableIndicator]} />
         <Text style={styles.statusText}>{status}</Text>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

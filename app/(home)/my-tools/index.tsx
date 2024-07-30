@@ -5,15 +5,16 @@ import { ScrollView, TouchableOpacity } from 'react-native';
 import GoBack from '~/components/go-back';
 import Tool, { TOOL_STATUS } from '~/components/Tool';
 import { useState } from 'react';
+import Header from '~/components/header';
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 
-const data = [
+export const toolsData = [
   {
-    title: 'Cordless Impact Driver',
+    title: 'Electric drilling',
     category: 'Machine',
     description:
-      'This impact driver offers high torque and variable speed, making it perfect for heavy-duty tasks.',
+      "Drilling machine ak47 is the world best drilling machine, it's the strongest drilling",
     status: 'available',
     lastUsed: new Date('2024-07-29T12:34:56Z'),
     id: '2',
@@ -67,7 +68,7 @@ const data = [
 const MyToolsScreen = () => {
   const { styles } = useStyles(_styles);
   const [searchQuery, setSearchQuery] = useState('');
-  const tools = data.filter((tool) => tool.title.toLowerCase().match(searchQuery));
+  const tools = toolsData.filter((tool) => tool.title.toLowerCase().match(searchQuery));
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
       <View style={styles.mainContainer}>
@@ -75,17 +76,7 @@ const MyToolsScreen = () => {
           <View style={styles.header}>
             <GoBack />
           </View>
-          <View style={styles.searchBar}>
-            <TextInput
-              value={searchQuery}
-              style={{ flex: 1 }}
-              placeholder="Search for tools, categories"
-              onChangeText={(text) => setSearchQuery(text)}
-            />
-            <TouchableOpacity style={styles.sortButton}>
-              <MaterialIcons name="sort" />
-            </TouchableOpacity>
-          </View>
+          <Header showSort={true} />
         </View>
         {tools.map((tool, index) => {
           return (
@@ -104,9 +95,6 @@ const MyToolsScreen = () => {
     </ScrollView>
   );
 };
-
-const stylesheet = createStyleSheet((theme) => ({}));
-
 export default MyToolsScreen;
 
 const _styles = createStyleSheet((theme) => ({
