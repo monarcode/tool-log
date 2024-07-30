@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { ScrollView } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import GoBack from '~/components/go-back';
@@ -9,48 +15,70 @@ const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 const AddToolScreen = () => {
   const { styles, theme } = useStyles(_styles);
-  const [_category, setCategory] = useState('');
+  const [category, setCategory] = useState('');
+  const [toolName, setToolName] = useState('');
+  const [description, setDescription] = useState('');
 
   const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
+
+  const handleAddTool = () => {
+    console.log('Adding tool:', { toolName, category, description });
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.row}>
-        <GoBack />
-        <Text style={styles.headerLabel}>Add New Tool</Text>
-      </View>
-
-      <ScrollView>
-        <View style={styles.subtitleContainer}>
-          <Text style={[styles.label, { fontSize: 24 }]}>Add New Tool</Text>
-          <Text style={[styles.label, { fontSize: 16, color: theme.colors.gray }]}>
-            Brief details of the tools
-          </Text>
-        </View>
-        <View style={styles.contentContainer}>
-          <TextInput
-            label="Tool Name"
-            placeholder="Enter the tool name"
-            value=""
-            onChangeText={() => {}}
-            style={styles.inputContainer}
-          />
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { marginBottom: 4 }]}>Category</Text>
-            <Dropdown options={categoryOptions} onSelect={setCategory} placeholder="Category..." />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.innerContainer}>
+          <View style={styles.row}>
+            <GoBack />
+            <Text style={styles.headerLabel}>Add New Tool</Text>
           </View>
-          <TextInput
-            label="Description"
-            placeholder="Tool Description"
-            value=""
-            onChangeText={() => {}}
-            inputStyle={{ alignSelf: 'flex-start' }}
-            containerStyle={{ height: 125, marginBottom: 24 }}
-          />
 
-          <Button style={styles.addButton}>Add Tool</Button>
+          <ScrollView
+            contentContainerStyle={styles.scrollViewContent}
+            keyboardShouldPersistTaps="handled">
+            <View style={styles.subtitleContainer}>
+              <Text style={[styles.label, { fontSize: 24 }]}>Add New Tool</Text>
+              <Text style={[styles.label, { fontSize: 16, color: theme.colors.gray }]}>
+                Brief details of the tools
+              </Text>
+            </View>
+            <View style={styles.contentContainer}>
+              <TextInput
+                label="Tool Name"
+                placeholder="Enter the tool name"
+                value={toolName}
+                onChangeText={setToolName}
+                style={styles.inputContainer}
+              />
+              <View style={styles.inputContainer}>
+                <Text style={[styles.label, { marginBottom: 4 }]}>Category</Text>
+                <Dropdown
+                  options={categoryOptions}
+                  onSelect={setCategory}
+                  placeholder="Category..."
+                />
+              </View>
+              <TextInput
+                label="Description"
+                placeholder="Tool Description"
+                value={description}
+                onChangeText={setDescription}
+                inputStyle={{ alignSelf: 'flex-start' }}
+                containerStyle={{ height: 125, marginBottom: 24 }}
+              />
+
+              <Button onPress={handleAddTool} style={styles.addButton}>
+                Add Tool
+              </Button>
+            </View>
+          </ScrollView>
         </View>
-      </ScrollView>
-    </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 export default AddToolScreen;
@@ -58,10 +86,16 @@ export default AddToolScreen;
 const _styles = createStyleSheet((theme) => ({
   container: {
     flex: 1,
+  },
+  innerContainer: {
+    flex: 1,
     paddingTop: topInset + 8,
     paddingBottom: bottomInset + 8,
     paddingHorizontal: theme.margins.containerMargin,
     backgroundColor: theme.colors.white,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
   },
   row: {
     flexDirection: 'row',
