@@ -8,6 +8,7 @@ import GoBack from '~/components/go-back';
 import Toast from '~/components/shared/toast';
 import { useInventoryStore } from '~/store/inventory.store';
 import { useLocalSearchParams } from 'expo-router';
+import categories, { CATEGORY } from '~/utils/categories';
 
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
@@ -85,7 +86,7 @@ const ToolDetailScreen = () => {
             <Image
               resizeMode="contain"
               style={styles.toolImage}
-              source={require('../../../assets/images/tool.png')}
+              source={categories(getTool.category as CATEGORY)}
             />
             <View style={styles.borderLine} />
             <View style={styles.bodyContainer}>

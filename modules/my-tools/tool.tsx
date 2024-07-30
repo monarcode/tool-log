@@ -4,6 +4,7 @@ import { Image, Pressable } from 'react-native';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 
 import { View, Text } from '~/components/shared';
+import categories, { CATEGORY } from '~/utils/categories';
 
 export type TOOL_STATUS = 'available' | 'unavailable';
 export interface ToolProps {
@@ -27,7 +28,7 @@ const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps)
       <Image
         resizeMode="contain"
         style={styles.toolImage}
-        source={require('~/assets/images/tool.png')}
+        source={categories(category as CATEGORY)}
       />
       <View style={styles.toolContent}>
         <View style={styles.titleWrapper}>
