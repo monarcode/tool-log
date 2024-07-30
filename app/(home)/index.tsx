@@ -51,7 +51,7 @@ const HomeScreen = () => {
     setTimeout(() => {
       setIsBottomSheetVisible(false);
       bottomSheetRef.current?.close();
-      router.push('/manage-tool');
+      router.push('/my-tools/3');
       setIsScanningTool(false);
     }, 4000);
   }, [isScanningTool]);

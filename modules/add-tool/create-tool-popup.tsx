@@ -8,21 +8,22 @@ const CreateToolPopup = () => {
   const { styles, theme } = useStyles(_styles);
 
   useEffect(() => {
-    async function readNfc() {
+    async function readNdef() {
       try {
+        // register for the NFC tag with NDEF in it
         await NfcManager.requestTechnology(NfcTech.Ndef);
+        // the resolved tag object will contain `ndefMessage` property
         const tag = await NfcManager.getTag();
-        console.log('Tag found:', tag);
-        // Handle the tag data as needed
+        console.warn('Tag found', tag);
       } catch (ex) {
-        console.warn('NFC Read Error', ex);
+        console.warn('Oops!', ex);
       } finally {
-        NfcManager.setAlertMessageIOS('NFC tag reading finished');
+        // stop the nfc scanning
         NfcManager.cancelTechnologyRequest();
       }
     }
 
-    readNfc();
+    readNdef();
 
     return () => {
       NfcManager.cancelTechnologyRequest();
