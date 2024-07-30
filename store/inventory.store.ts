@@ -16,7 +16,7 @@ const useInventoryStore = create<InventoryStore>()(
             ...tools,
             {
               ...item,
-              id: uuid.v4().toString(),
+              // id: uuid.v4().toString(),
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
               isAvailable: true,
