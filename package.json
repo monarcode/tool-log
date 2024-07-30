@@ -12,7 +12,8 @@
     "prebuild": "expo prebuild",
     "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.2.3",
@@ -55,6 +56,8 @@
     "@typescript-eslint/parser": "^7.7.0",
     "eslint": "^8.57.0",
     "eslint-config-universe": "^13.0.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.2.7",
     "prettier": "^3.3.3",
     "react-native-svg-transformer": "^1.5.0",
     "typescript": "~5.5.4"
