@@ -1,24 +1,52 @@
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
-import { Text, View } from '~/components/shared';
+import { Button, Text, View } from '~/components/shared';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Entypo from '@expo/vector-icons/Entypo';
 import { Image, ScrollView, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import GoBack from '~/components/go-back';
+import Toast from '~/components/shared/toast';
 
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 
-const ToolDetailScreen = () => {
+const ScanToolDetailScreen = () => {
   const { styles } = useStyles(_styles);
   const [showOption, setShowOption] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
 
   const handleToggle = () => {
     setShowOption((option) => !option);
   };
 
+  const handleCollectTool = () => {
+    setToastMessage('Tool collected successfully!');
+    setToastType('success');
+    setToastVisible(true);
+  };
+
+  const handleReturnTool = () => {
+    setToastMessage('Tool returned!');
+    setToastType('info');
+    setToastVisible(true);
+  };
+
+  useEffect(() => {
+    if (toastVisible) {
+      const timer = setTimeout(() => {
+        setToastVisible(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastVisible]);
+
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
+      {toastVisible && (
+        <Toast message={toastMessage} type={toastType} onClose={() => setToastVisible(false)} />
+      )}
       <View style={styles.mainContainer}>
         <View style={styles.container}>
           <View style={styles.header}>
@@ -71,12 +99,18 @@ const ToolDetailScreen = () => {
             quickly. Drilling small holes requires a high speed and hand feed. Bolts and nuts are
             used to mount the machine's base on the floor or on a bench.
           </Text>
+          <View style={styles.toolsBtns}>
+            <Button onPress={handleCollectTool}>Collect Tool</Button>
+            <Button type="secondary" onPress={handleReturnTool}>
+              Return Tool
+            </Button>
+          </View>
         </View>
       </View>
     </ScrollView>
   );
 };
-export default ToolDetailScreen;
+export default ScanToolDetailScreen;
 
 const _styles = createStyleSheet((theme) => ({
   mainContainer: {
@@ -195,5 +229,9 @@ const _styles = createStyleSheet((theme) => ({
     fontSize: 12,
     fontWeight: '400',
     color: theme.colors.text2,
+  },
+  toolsBtns: {
+    marginTop: 25,
+    gap: 20,
   },
 }));
