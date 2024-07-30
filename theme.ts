@@ -7,7 +7,14 @@ export const colors = {
     300: '#413C3A',
   },
   gray: '#D9D5D4',
+  text: '#413C3A',
+  text2: '#776D6A',
+  text3: '#47474F',
   dark: '#0A0A0A',
+  successTag: '#E1F3D8',
+  errorTag: '#F9E7EA',
+  success: '#6DC347',
+  border: '#DCDCDE',
 } as const;
 
 const fontSizes = {
