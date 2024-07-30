@@ -1,10 +1,34 @@
+import { useEffect } from 'react';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
-
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import ReadTag from '~/assets/icons/read-tag.svg';
 import { Button, Text, View } from '~/components/shared';
 
 const CreateToolPopup = () => {
   const { styles, theme } = useStyles(_styles);
+
+  useEffect(() => {
+    async function readNfc() {
+      try {
+        await NfcManager.requestTechnology(NfcTech.Ndef);
+        const tag = await NfcManager.getTag();
+        console.log('Tag found:', tag);
+        // Handle the tag data as needed
+      } catch (ex) {
+        console.warn('NFC Read Error', ex);
+      } finally {
+        NfcManager.setAlertMessageIOS('NFC tag reading finished');
+        NfcManager.cancelTechnologyRequest();
+      }
+    }
+
+    readNfc();
+
+    return () => {
+      NfcManager.cancelTechnologyRequest();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={{ alignItems: 'center' }}>
