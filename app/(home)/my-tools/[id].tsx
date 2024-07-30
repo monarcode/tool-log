@@ -2,7 +2,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, TouchableOpacity } from 'react-native';
+import { Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import GoBack from '~/components/go-back';
@@ -25,6 +25,22 @@ const ToolDetailScreen = () => {
   const handleToggle = () => {
     setShowOption((option) => !option);
   };
+
+  const handleCollectTool = () => {
+    setToastMessage('Tool collected successfully!');
+    setToastType('success');
+    setToastVisible(true);
+  };
+
+  const handleReturnTool = () => {
+    setToastMessage('Tool returned!');
+    setToastType('info');
+    setToastVisible(true);
+  };
+
+  const handleDelete = ()=>{
+    const $confirm = Alert.alert("Are you sure you want to delete?");
+  }
 
   useEffect(() => {
     if (toastVisible) {
@@ -57,7 +73,7 @@ const ToolDetailScreen = () => {
             <TouchableOpacity>
               <Text style={styles.selectText}>Edit Tool</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleDelete}>
               <Text style={styles.selectText}>Delete Tool</Text>
             </TouchableOpacity>
           </View>
@@ -107,6 +123,7 @@ const ToolDetailScreen = () => {
             </View>
           </View>
         )}
+        <View />
         <View />
       </View>
     </ScrollView>
