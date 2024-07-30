@@ -10,7 +10,7 @@ for FILE in $STAGED_FILES
 do
   if [[ "$FILE" =~ \.(js|jsx|ts|tsx)$ ]]; then
     npx eslint "$FILE" --fix || exit 1
-    npx prettier --write "$FILE" || exit 1
+    npm run format "$FILE" || exit 1
   elif [[ "$FILE" =~ \.json$ ]]; then
     npx prettier --write "$FILE" || exit 1
   fi
