@@ -1,40 +1,57 @@
-import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
+import NfcManager, { Ndef, NdefRecord, NfcTech } from 'react-native-nfc-manager';
 
 class NFCHandler {
   async init(): Promise<boolean> {
-    await NfcManager.start();
-    return NfcManager.isSupported();
+    try {
+      await NfcManager.start();
+      return await NfcManager.isSupported();
+    } catch (error) {
+      console.error('Error initializing NFC:', error);
+      return false;
+    }
   }
 
-  async readNFC(): Promise<string | null> {
+  async readNdefTag(): Promise<{ message: string; records: NdefRecord[] } | null> {
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
       if (tag && tag.ndefMessage && tag.ndefMessage.length > 0) {
-        return Ndef.text.decodePayload(tag.ndefMessage[0].payload);
+        const ndefRecords = tag.ndefMessage;
+        const firstRecord = ndefRecords[0];
+        const message = Ndef.text.decodePayload(firstRecord.payload);
+        return { message, records: ndefRecords };
+      } else {
+        throw new Error('No NDEF message found on the tag');
       }
-    } catch (ex) {
-      console.warn('Error reading NFC:', ex);
+    } catch (error) {
+      console.error('Error reading NDEF tag:', error);
+      throw error;
     } finally {
-      NfcManager.cancelTechnologyRequest();
+      this.cancelNfcSession();
     }
-    return null;
   }
 
-  async writeNFC(text: string): Promise<boolean> {
+  async writeNdefTag(text: string): Promise<void> {
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const bytes = Ndef.encodeMessage([Ndef.textRecord(text)]);
       if (bytes) {
         await NfcManager.ndefHandler.writeNdefMessage(bytes);
-        return true;
+      } else {
+        throw new Error('Failed to encode NDEF message');
       }
-    } catch (ex) {
-      console.warn('Error writing NFC:', ex);
+    } catch (error) {
+      console.error('Error writing NDEF tag:', error);
+      throw error;
     } finally {
-      NfcManager.cancelTechnologyRequest();
+      this.cancelNfcSession();
     }
-    return false;
+  }
+
+  private cancelNfcSession() {
+    NfcManager.cancelTechnologyRequest().catch(() => {
+      console.warn('Error cancelling NFC session, possibly already cancelled');
+    });
   }
 }
 
