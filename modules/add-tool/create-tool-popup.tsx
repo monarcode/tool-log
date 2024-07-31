@@ -26,85 +26,105 @@ const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToo
   const [scanning, setScanning] = useState(false);
   const [isSupported, setNfcSupported] = useState(false);
   const [isEnabled, setNfcEnabled] = useState(false);
+  const [status, setStatus] = useState('');
   const router = useRouter();
   const addInventoryStore = useInventoryStore((s) => s.addTool);
 
-  const initializeNfc = async () => {
-    const supported = await NfcManager.isSupported();
-    setNfcSupported(supported);
+  useEffect(() => {
+    initializeNfc();
+  }, []);
 
-    if (supported) {
-      const enabled = await NfcManager.isEnabled();
-      setNfcEnabled(enabled);
-    } else {
-      // router.navigate("/scan-tool/2")
-      // Alert.alert('NFC is not supported on this device');
+  const initializeNfc = async () => {
+    try {
+      const supported = await NfcManager.isSupported();
+      setNfcSupported(supported);
+      console.log('NFC supported:', supported);
+
+      if (supported) {
+        await NfcManager.start();
+        console.log('NFC manager started');
+        const enabled = await NfcManager.isEnabled();
+        setNfcEnabled(enabled);
+        console.log('NFC enabled:', enabled);
+      }
+      return supported;
+    } catch (error) {
+      console.error('Error initializing NFC:', error);
+      setStatus('Error initializing NFC');
+      return false;
     }
   };
 
   async function readNdef() {
+    setScanning(true);
+    setStatus('Scanning for NFC tag...');
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
-      if (tag && tag?.ndefMessage.length >= 0) {
-        const data = tag?.ndefMessage[0].payload;
+      if (tag && tag.ndefMessage && tag.ndefMessage.length > 0) {
+        const ndefRecord = tag.ndefMessage[0];
+        const data = Ndef.text.decodePayload(new Uint8Array(ndefRecord.payload));
+        setStatus('Tag read successfully');
+        console.log('NFC Data read:', data);
         router.navigate(`/scan-tool/${data}`);
+      } else {
+        setStatus('No NDEF message found on tag');
       }
-      return null;
     } catch (ex) {
-      return;
+      console.error('Error reading NFC:', ex);
+      setStatus('Error reading NFC tag');
     } finally {
-      NfcManager.close();
       NfcManager.cancelTechnologyRequest();
+      setScanning(false);
     }
   }
 
-  async function writeNdef(data: string, callback = () => undefined) {
-    let result = false;
+  async function writeNdef(data: string) {
+    setScanning(true);
+    setStatus('Ready to write. Approach an NFC tag...');
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
-
       const bytes = Ndef.encodeMessage([Ndef.textRecord(data)]);
-
       if (bytes) {
-        await NfcManager.ndefHandler // STEP 2
-          .writeNdefMessage(bytes); // STEP 3
-        result = true;
-        callback();
+        await NfcManager.ndefHandler.writeNdefMessage(bytes);
+        setStatus('Data written successfully');
+        addInventoryStore({
+          id: data,
+          category: payload?.category || '',
+          description: payload?.description || '',
+          name: payload?.name || '',
+        });
+        router.push(`/my-tools`);
       }
     } catch (ex) {
-      console.warn(ex);
+      console.error('Error writing NFC:', ex);
+      setStatus('Error writing to NFC tag');
     } finally {
       NfcManager.cancelTechnologyRequest();
+      setScanning(false);
     }
-
-    return result;
   }
 
-  useEffect(() => {
-    initializeNfc();
+  const handleAction = () => {
     if (isSupported && isEnabled) {
-      type === 'read' && readNdef();
-
-      if (type === 'write' && payload) {
+      if (type === 'read') {
+        readNdef();
+      } else if (type === 'write' && payload) {
         const $id = uuid.v4().toString();
-        writeNdef($id as string, () => {
-          addInventoryStore({
-            id: $id,
-            category: payload.category,
-            description: payload.description,
-            name: payload.name,
-          });
-          router.push(`/my-tools`);
-        });
+        writeNdef($id);
+      } else {
+        setStatus('Invalid action or missing payload');
       }
+    } else {
+      setStatus('NFC is not supported or enabled on this device');
     }
-  }, []);
+  };
+
   return (
     <View style={styles.container}>
       <View style={{ alignItems: 'center' }}>
         <Text style={styles.label}>
-          {!isSupported || !isEnabled ? 'NFC is not supported or enabled' : 'Ready to Scan'}
+          {!isSupported || !isEnabled ? 'NFC is not supported or enabled' : `Ready to ${type === 'read' ? 'Read' : 'Write'}`}
         </Text>
 
         <ReadTag
@@ -116,13 +136,16 @@ const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToo
           ]}
         />
         <Text style={[styles.label, { color: theme.colors.gray, fontSize: 16 }]}>
-          {!isSupported || !isEnabled
+          {status || (!isSupported || !isEnabled
             ? "Oops! Looks like you don't have NFC Enabled"
-            : 'Approach an NFC Tag'}
+            : 'Approach an NFC Tag')}
         </Text>
       </View>
       <View style={{ width: 282, marginHorizontal: 'auto', marginTop: 32 }}>
-        <Button onPress={closeBottomSheet} type="secondary">
+        <Button onPress={handleAction} disabled={scanning || !isSupported || !isEnabled}>
+          {scanning ? `${type === 'read' ? 'Reading' : 'Writing'}...` : `${type === 'read' ? 'Read' : 'Write'} NFC Tag`}
+        </Button>
+        <Button onPress={closeBottomSheet} type="secondary" style={{ marginTop: 10 }}>
           Cancel
         </Button>
       </View>
