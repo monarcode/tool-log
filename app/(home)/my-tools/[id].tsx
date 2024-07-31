@@ -206,6 +206,8 @@ const _styles = createStyleSheet((theme) => ({
   },
   bodyContainer: {
     padding: theme.margins.containerMargin,
+    borderTopWidth: 0.5,
+    borderTopColor: theme.colors.gray,
   },
   notFoundText: {
     fontSize: 30,
