@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 
 import NoNFC from '~/assets/icons/no-nfc.svg';
@@ -7,29 +8,41 @@ import { useNfc } from '~/hooks/useNfc';
 import { useNfcStore } from '~/store/nfc.store';
 
 const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
-  const { nfcAvailable } = useNfc();
-  const nfcStoreState = useNfcStore((state) => state.state);
+  const { nfcUnavailable, processing } = useNfc();
+  const nfcStoreState = useNfcStore((v) => v);
   const { styles } = useStyles(_styles);
 
   const popUpTitle = mode === 'read' ? 'Ready to Read' : 'Ready to Write';
   const actionCopy = mode === 'read' ? 'Read Tag' : 'Save Tool';
 
+  const onActionStart = async () => {
+    await onAction();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (nfcStoreState.scanning) {
+      setTimeout(() => {
+        onClose();
+        nfcStoreState.disableScanning();
+      }, 60000);
+    }
+  }, [nfcStoreState.scanning]);
+
   return (
     <View style={{ flex: 1 }}>
       {/* content when available */}
-      {nfcAvailable && (
+      {!nfcUnavailable && (
         <View style={styles.availableContainer}>
           <Text style={styles.title}>{popUpTitle}</Text>
           <NFCScan />
           <Text style={styles.subtitle}>Approach an NFC Tag</Text>
 
           <View style={styles.actionWrapper}>
-            <Button
-              containerStyle={{ flex: 1 }}
-              onPress={onAction}
-              disabled={nfcStoreState.scanning || !nfcAvailable}>
-              {nfcStoreState.scanning ? 'loading...' : actionCopy}
+            <Button containerStyle={{ flex: 1 }} disabled={processing} onPress={onActionStart}>
+              {processing ? 'Processing...' : actionCopy}
             </Button>
+
             <Button
               containerStyle={{ flex: 1 }}
               onPress={onClose}
@@ -42,7 +55,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
       )}
 
       {/* content when not available */}
-      {!nfcAvailable && (
+      {nfcUnavailable && (
         <View style={styles.unavaileableContainer}>
           <NoNFC />
 
@@ -105,4 +118,4 @@ const _styles = createStyleSheet((theme) => ({
 
 export default NfcPopup;
 
-type PopupProps = { mode: 'read' | 'write'; onClose: () => void; onAction: () => void };
+type PopupProps = { mode: 'read' | 'write'; onClose: () => void; onAction: () => Promise<void> };

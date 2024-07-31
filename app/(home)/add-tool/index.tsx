@@ -2,6 +2,7 @@ import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@go
 import { router } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -22,6 +23,7 @@ import { useInventoryStore } from '~/store/inventory.store';
 export const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
+
 const AddToolScreen = () => {
   const { styles, theme } = useStyles(_styles);
   const [category, setCategory] = useState('');
@@ -31,40 +33,25 @@ const AddToolScreen = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
   const { writeNfc } = useNfc();
-  const addTool = useInventoryStore((store) => store.addTool);
-
-  const canAdd = Boolean(toolName && category && description);
+  const store = useInventoryStore((store) => store);
 
   // Memoize snapPoints
-  const snapPoints = useMemo(() => ['45%'], []);
+  const snapPoints = useMemo(() => ['50%'], []);
 
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
-
-  // TODO: remove this later
-  // const handleAddTool = () => {
-  //   if (!canAdd) return;
-  //   if (isAddingTool) return;
-
-  //   setIsAddingTool(true);
-  //   bottomSheetRef.current?.expand();
-  //   setToolData({
-  //     name: toolName,
-  //     description,
-  //     category,
-  //   });
-
-  //   setIsAddingTool(false);
-  // };
+  const addToolSheet = useRef<BottomSheetModal>(null);
 
   const closeBottomSheet = () => {
-    if (!bottomSheetRef) return;
-    bottomSheetRef?.current?.close();
+    if (!addToolSheet) return;
+    addToolSheet?.current?.close();
+  };
+
+  const openBottomSheet = () => {
+    if (!addToolSheet) return;
+    addToolSheet?.current?.present();
   };
 
   const handleSavetag = async () => {
-    if (!canAdd) return;
     const newId = uuid.v4().toString();
-    bottomSheetRef.current?.present();
 
     const payload = {
       name: toolName,
@@ -73,14 +60,20 @@ const AddToolScreen = () => {
       id: newId,
     };
 
-    await writeNfc(newId);
+    try {
+      await writeNfc(newId);
+      store.addTool({
+        id: newId,
+        category: payload?.category || '',
+        description: payload?.description || '',
+        name: payload?.name || '',
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Error writing to NFC');
+    } finally {
+      closeBottomSheet();
+    }
 
-    addTool({
-      id: newId,
-      category: payload?.category || '',
-      description: payload?.description || '',
-      name: payload?.name || '',
-    });
     router.replace(`/my-tools`);
   };
 
@@ -102,7 +95,7 @@ const AddToolScreen = () => {
             </View>
 
             <ScrollView
-              contentContainerStyle={styles.scrollViewContent}
+              contentContainerStyle={[styles.scrollViewContent]}
               keyboardShouldPersistTaps="handled">
               <View style={styles.subtitleContainer}>
                 <Text style={[styles.label, { fontSize: 20 }]}>Add New Tool</Text>
@@ -135,17 +128,15 @@ const AddToolScreen = () => {
                   value={description}
                   onChangeText={setDescription}
                   inputStyle={{ alignSelf: 'flex-start' }}
-                  containerStyle={{ height: 125, marginBottom: 24 }}
+                  containerStyle={{ marginBottom: 24 }}
                 />
 
-                <Button onPress={handleSavetag} disabled={!canAdd}>
-                  Add Tool
-                </Button>
+                <Button onPress={openBottomSheet}>Add Tool</Button>
               </View>
             </ScrollView>
 
             <BottomSheetModal
-              ref={bottomSheetRef}
+              ref={addToolSheet}
               index={0}
               snapPoints={snapPoints}
               backdropComponent={({ animatedIndex, style, animatedPosition }) => (
@@ -172,6 +163,7 @@ export default AddToolScreen;
 const _styles = createStyleSheet((theme) => ({
   container: {
     flex: 1,
+    paddingBottom: 24,
   },
   innerContainer: {
     flex: 1,
@@ -213,7 +205,7 @@ const _styles = createStyleSheet((theme) => ({
     marginTop: 130,
   },
   contentContainer: {
-    marginTop: 50,
+    marginTop: 30,
   },
   overlay: {
     position: 'absolute',

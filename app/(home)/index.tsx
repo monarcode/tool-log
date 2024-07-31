@@ -24,7 +24,7 @@ const HomeScreen = () => {
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
-  const snapPoints = useMemo(() => ['42%'], []);
+  const snapPoints = useMemo(() => ['50%'], []);
 
   const handleScanTool = () => {
     bottomSheetRef.current?.present();
@@ -37,7 +37,10 @@ const HomeScreen = () => {
 
   const handleScan = async () => {
     const tagId = await readNfc();
-    if (!tagId) return;
+    if (!tagId) {
+      router.push('/add-tool');
+      return;
+    }
     router.navigate(`/scan-tool/${tagId}`);
   };
 
