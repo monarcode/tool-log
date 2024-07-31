@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { ScrollView , Image} from 'react-native';
+import { ScrollView } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
+import Empty from '~/assets/icons/empty-tool.svg';
 import GoBack from '~/components/go-back';
 import Header from '~/components/header';
-import { View, Text } from '~/components/shared';
+import { Text, View } from '~/components/shared';
 import Tool, { TOOL_STATUS } from '~/modules/my-tools/tool';
 import { useInventoryStore } from '~/store/inventory.store';
+
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 
@@ -18,6 +20,7 @@ const MyToolsScreen = () => {
   const tools = $tools.filter((tool) =>
     tool.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
       <View style={styles.mainContainer}>
@@ -38,20 +41,14 @@ const MyToolsScreen = () => {
                 status={tool.isAvailable ? 'available' : ('unavailable' as TOOL_STATUS)}
                 lastUsed={tool.updatedAt}
                 id={tool.id}
-                key={index}
+                key={tool.id}
               />
             );
           })
         ) : (
           <View style={styles.emptyContainer}>
-            <View style={styles.emptyImageContainer}>
-              <Image
-                source={require('~/assets/images/empty-box.png')}
-                resizeMode="contain"
-                style={{ width: '100%', height: '100%' }}
-              />
-            </View>
-            <Text style={styles.textEmpty}>No tools found</Text>
+            <Empty />
+            <Text style={styles.textEmpty}>You have not added any tools yet</Text>
           </View>
         )}
       </View>
@@ -67,11 +64,6 @@ const _styles = createStyleSheet((theme) => ({
     flex: 1,
     paddingTop: topInset + 8,
     paddingBottom: bottomInset + 8,
-  },
-  emptyImageContainer: {
-    width: 110,
-    height: 110,
-    borderRadius: 10,
   },
   emptyContainer: {
     flex: 1,

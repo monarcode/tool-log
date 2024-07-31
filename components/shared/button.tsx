@@ -21,6 +21,7 @@ export const Button = ({
   type = 'primary',
   containerStyle,
   labelStyle,
+  disabled = false,
   ...others
 }: ButtonProps) => {
   const { styles } = useStyles(_styles, {

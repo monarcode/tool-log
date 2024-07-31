@@ -1,5 +1,6 @@
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
+import { router } from 'expo-router';
+import { useMemo, useRef, useState } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -8,11 +9,15 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
+import uuid from 'react-native-uuid';
 
 import GoBack from '~/components/go-back';
+import CustomBackdrop from '~/components/modules/bottom-sheet/custom-backdrop';
+import NfcPopup from '~/components/modules/nfc/nfc-popup';
 import { Button, Dropdown, Text, TextInput, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
-import CreateToolPopup, { Payload } from '~/modules/add-tool/create-tool-popup';
+import { useNfc } from '~/hooks/useNfc';
+import { useInventoryStore } from '~/store/inventory.store';
 
 export const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
 const topInset = UnistylesRuntime.insets.top;
@@ -22,124 +27,144 @@ const AddToolScreen = () => {
   const [category, setCategory] = useState('');
   const [toolName, setToolName] = useState('');
   const [description, setDescription] = useState('');
-
-  const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
-  const [isAddingTool, setIsAddingTool] = useState(false);
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const [toolData, setToolData] = useState<Payload>(null!);
-  // Memoize snapPoints
-  const snapPoints = useMemo(() => ['45%'], []);
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
-  const handleAddTool = () => {
-    if (!canAdd) return;
-    if (isAddingTool) return;
-
-    setIsAddingTool(true);
-    setIsBottomSheetVisible(true);
-    bottomSheetRef.current?.expand();
-    setToolData({
-      name: toolName,
-      description,
-      category,
-    });
-
-    setIsAddingTool(false);
-  };
-
-  const canAdd = Boolean(toolName && category && description);
-
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
+  const { writeNfc } = useNfc();
+  const addTool = useInventoryStore((store) => store.addTool);
+
+  const canAdd = Boolean(toolName && category && description);
+
+  // Memoize snapPoints
+  const snapPoints = useMemo(() => ['45%'], []);
+
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+  // TODO: remove this later
+  // const handleAddTool = () => {
+  //   if (!canAdd) return;
+  //   if (isAddingTool) return;
+
+  //   setIsAddingTool(true);
+  //   bottomSheetRef.current?.expand();
+  //   setToolData({
+  //     name: toolName,
+  //     description,
+  //     category,
+  //   });
+
+  //   setIsAddingTool(false);
+  // };
+
   const closeBottomSheet = () => {
     if (!bottomSheetRef) return;
     bottomSheetRef?.current?.close();
-    setIsBottomSheetVisible(false);
   };
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
-      {toastVisible && (
-        <Toast message={toastMessage} type={toastType} onClose={() => setToastVisible(false)} />
-      )}
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.innerContainer}>
-          <View style={styles.row}>
-            <GoBack />
-            <Text style={styles.headerLabel}>Add New Tool</Text>
-          </View>
 
-          <ScrollView
-            contentContainerStyle={styles.scrollViewContent}
-            keyboardShouldPersistTaps="handled">
-            <View style={styles.subtitleContainer}>
-              <Text style={[styles.label, { fontSize: 20 }]}>Add New Tool</Text>
-              <Text style={[styles.label, { fontSize: 16, color: theme.colors.gray }]}>
-                Brief details of the tools
-              </Text>
+  const handleSavetag = async () => {
+    if (!canAdd) return;
+    const newId = uuid.v4().toString();
+    bottomSheetRef.current?.present();
+
+    const payload = {
+      name: toolName,
+      description,
+      category,
+      id: newId,
+    };
+
+    await writeNfc(newId);
+
+    addTool({
+      id: newId,
+      category: payload?.category || '',
+      description: payload?.description || '',
+      name: payload?.name || '',
+    });
+    router.replace(`/my-tools`);
+  };
+
+  return (
+    <BottomSheetModalProvider>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+        {toastVisible && (
+          <Toast message={toastMessage} type={toastType} onClose={() => setToastVisible(false)} />
+        )}
+
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            <View style={styles.row}>
+              <GoBack />
+              <Text style={styles.headerLabel}>Add New Tool</Text>
             </View>
-            <View style={styles.contentContainer}>
-              <TextInput
-                label="Tool Name"
-                placeholder="Enter the tool name"
-                value={toolName}
-                onChangeText={setToolName}
-                style={styles.inputContainer}
-              />
-              <View style={styles.inputContainer}>
-                <Text
-                  style={[styles.label, { marginBottom: 4, fontFamily: theme.fontFamily.regular }]}>
-                  Category
+
+            <ScrollView
+              contentContainerStyle={styles.scrollViewContent}
+              keyboardShouldPersistTaps="handled">
+              <View style={styles.subtitleContainer}>
+                <Text style={[styles.label, { fontSize: 20 }]}>Add New Tool</Text>
+                <Text style={[styles.label, { fontSize: 16, color: theme.colors.neutral[100] }]}>
+                  Brief details of the tools
                 </Text>
-                <Dropdown
-                  options={categoryOptions}
-                  onSelect={setCategory}
-                  placeholder="Category..."
-                />
               </View>
-              <TextInput
-                label="Description"
-                placeholder="Tool Description"
-                value={description}
-                onChangeText={setDescription}
-                inputStyle={{ alignSelf: 'flex-start' }}
-                containerStyle={{ height: 125, marginBottom: 24 }}
-              />
-              <View
-                style={{
-                  width: '100%',
-                  marginHorizontal: 'auto',
-                  marginTop: 32,
-                  opacity: canAdd ? 1 : 0.6,
-                }}>
-                <Button onPress={handleAddTool} disabled={!canAdd}>
+
+              <View style={styles.contentContainer}>
+                <TextInput
+                  label="Tool Name"
+                  value={toolName}
+                  onChangeText={setToolName}
+                  style={styles.inputContainer}
+                />
+
+                <View style={styles.inputContainer}>
+                  <Text
+                    style={[
+                      styles.label,
+                      { marginBottom: 4, fontFamily: theme.fontFamily.regular },
+                    ]}>
+                    Category
+                  </Text>
+                  <Dropdown options={categoryOptions} onSelect={setCategory} placeholder="" />
+                </View>
+
+                <TextInput
+                  label="Description"
+                  value={description}
+                  onChangeText={setDescription}
+                  inputStyle={{ alignSelf: 'flex-start' }}
+                  containerStyle={{ height: 125, marginBottom: 24 }}
+                />
+
+                <Button onPress={handleSavetag} disabled={!canAdd}>
                   Add Tool
                 </Button>
               </View>
-            </View>
-          </ScrollView>
-          {isBottomSheetVisible && <View style={styles.overlay} />}
-          <BottomSheet
-            ref={bottomSheetRef}
-            index={-1}
-            snapPoints={snapPoints}
-            onChange={handleSheetChanges}
-            enablePanDownToClose>
-            <BottomSheetView style={styles.sheetContentContainer}>
-              <CreateToolPopup
-                payload={toolData}
-                type="write"
-                closeBottomSheet={closeBottomSheet}
-              />
-            </BottomSheetView>
-          </BottomSheet>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+            </ScrollView>
+
+            <BottomSheetModal
+              ref={bottomSheetRef}
+              index={0}
+              snapPoints={snapPoints}
+              backdropComponent={({ animatedIndex, style, animatedPosition }) => (
+                <CustomBackdrop
+                  style={style}
+                  animatedIndex={animatedIndex}
+                  animatedPosition={animatedPosition}
+                  close={closeBottomSheet}
+                />
+              )}
+              enablePanDownToClose>
+              <BottomSheetView style={styles.sheetContentContainer}>
+                <NfcPopup mode="write" onClose={closeBottomSheet} onAction={handleSavetag} />
+              </BottomSheetView>
+            </BottomSheetModal>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </BottomSheetModalProvider>
   );
 };
 export default AddToolScreen;
@@ -170,6 +195,7 @@ const _styles = createStyleSheet((theme) => ({
   label: {
     fontSize: 14,
     fontFamily: theme.fontFamily.semiBold,
+    color: '#120903',
   },
   input: {
     backgroundColor: theme.colors.neutral,

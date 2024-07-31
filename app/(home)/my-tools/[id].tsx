@@ -1,11 +1,11 @@
 import Entypo from '@expo/vector-icons/Entypo';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, TouchableOpacity } from 'react-native';
+import { Image, Modal, ScrollView, TouchableOpacity } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import GoBack from '~/components/go-back';
-import { Text, View } from '~/components/shared';
+import { Button, Text, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
 import { useInventoryStore } from '~/store/inventory.store';
 import categories, { CATEGORY } from '~/utils/categories';
@@ -14,7 +14,7 @@ const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 
 const ToolDetailScreen = () => {
-  const { styles } = useStyles(_styles);
+  const { styles, theme } = useStyles(_styles);
   const [showOption, setShowOption] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -81,9 +81,12 @@ const ToolDetailScreen = () => {
             <View style={styles.header}>
               <GoBack />
 
-              <TouchableOpacity onPress={handleToggle} style={styles.optionButton}>
+              <Button
+                type="outline"
+                onPress={handleToggle}
+                containerStyle={{ paddingHorizontal: 12, height: 40 }}>
                 <Entypo name="dots-three-vertical" size={15} color="#47474F" />
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
           {showOption && (
@@ -112,7 +115,6 @@ const ToolDetailScreen = () => {
                 style={styles.toolImage}
                 source={categories(getTool.category as CATEGORY)}
               />
-              <View style={styles.borderLine} />
               <View style={styles.bodyContainer}>
                 <View style={styles.textCon}>
                   <Text style={styles.title}>{getTool.name}</Text>
@@ -126,12 +128,6 @@ const ToolDetailScreen = () => {
                       <Text style={{ fontSize: 8.72, fontWeight: '400' }}>
                         {getTool.isAvailable ? 'Available' : 'Unavaiable'}
                       </Text>
-                    </View>
-                  </View>
-                  <View style={styles.subDetailCon}>
-                    <Text style={styles.category}>No of tools available</Text>
-                    <View style={styles.errorTagCon}>
-                      <Text style={{ fontSize: 8.72, fontWeight: '400' }}>17</Text>
                     </View>
                   </View>
                 </View>
@@ -166,12 +162,12 @@ const ToolDetailScreen = () => {
               gap: 8,
             }}>
             <View style={{ alignItems: 'center' }}>
-              <Text style={[styles.text, { fontSize: 18, color: colors.text }]}>
+              <Text style={[styles.text, { fontSize: 18, color: theme.colors.text }]}>
                 Confirm Deletion
               </Text>
             </View>
 
-            <Text style={[styles.text, { color: colors.text, fontSize: 12 }]}>
+            <Text style={[styles.text, { color: theme.colors.text, fontSize: 12 }]}>
               Are you sure you want to delete this tool? This action cannot be undone.
             </Text>
 
@@ -179,8 +175,8 @@ const ToolDetailScreen = () => {
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => toggleModal()}
-                style={[styles.btn, { backgroundColor: colors.gray }]}>
-                <Text style={[styles.text, { color: colors.text }]}>Cancel</Text>
+                style={[styles.btn, { backgroundColor: theme.colors.gray }]}>
+                <Text style={[styles.text, { color: theme.colors.text }]}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -210,6 +206,8 @@ const _styles = createStyleSheet((theme) => ({
   },
   bodyContainer: {
     padding: theme.margins.containerMargin,
+    borderTopWidth: 0.5,
+    borderTopColor: theme.colors.gray,
   },
   notFoundText: {
     fontSize: 30,
@@ -297,13 +295,14 @@ const _styles = createStyleSheet((theme) => ({
   },
   toolImage: {
     width: 'auto',
-    height: 400,
+    height: 250,
+    aspectRatio: 1,
+    marginHorizontal: 'auto',
     zIndex: 2,
   },
   borderLine: {
     width: '100%',
     borderColor: theme.colors.gray,
-    borderWidth: 0.5,
   },
   title: {
     fontSize: 16,
