@@ -17,7 +17,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
   return (
     <View style={{ flex: 1 }}>
       {/* content when available */}
-      {!nfcAvailable && (
+      {nfcAvailable && (
         <View style={styles.availableContainer}>
           <Text style={styles.title}>{popUpTitle}</Text>
           <NFCScan />
@@ -42,7 +42,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
       )}
 
       {/* content when not available */}
-      {nfcAvailable && (
+      {!nfcAvailable && (
         <View style={styles.unavaileableContainer}>
           <NoNFC />
 
