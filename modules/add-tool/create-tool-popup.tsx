@@ -124,7 +124,9 @@ const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToo
     <View style={styles.container}>
       <View style={{ alignItems: 'center' }}>
         <Text style={styles.label}>
-          {!isSupported || !isEnabled ? 'NFC is not supported or enabled' : `Ready to ${type === 'read' ? 'Read' : 'Write'}`}
+          {!isSupported || !isEnabled
+            ? 'NFC is not supported or enabled'
+            : `Ready to ${type === 'read' ? 'Read' : 'Write'}`}
         </Text>
 
         <ReadTag
@@ -135,17 +137,34 @@ const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToo
             },
           ]}
         />
-        <Text style={[styles.label, { color: theme.colors.gray, fontSize: 16 }]}>
-          {status || (!isSupported || !isEnabled
-            ? "Oops! Looks like you don't have NFC Enabled"
-            : 'Approach an NFC Tag')}
+        <Text
+          style={[
+            styles.label,
+            {
+              fontSize: 14,
+              fontFamily: theme.fontFamily.regular,
+            },
+          ]}>
+          {status ||
+            (!isSupported || !isEnabled
+              ? "Oops! Looks like you don't have NFC Enabled"
+              : 'Approach an NFC Tag')}
         </Text>
       </View>
-      <View style={{ width: 282, marginHorizontal: 'auto', marginTop: 32 }}>
-        <Button onPress={handleAction} disabled={scanning || !isSupported || !isEnabled}>
-          {scanning ? `${type === 'read' ? 'Reading' : 'Writing'}...` : `${type === 'read' ? 'Read' : 'Write'} NFC Tag`}
+      <View style={styles.actionWrapper}>
+        <Button
+          containerStyle={{ flex: 1 }}
+          onPress={handleAction}
+          disabled={scanning || !isSupported || !isEnabled}>
+          {scanning
+            ? `${type === 'read' ? 'Reading' : 'Writing'}...`
+            : `${type === 'read' ? 'Read' : 'Write'} NFC Tag`}
         </Button>
-        <Button onPress={closeBottomSheet} type="secondary" style={{ marginTop: 10 }}>
+        <Button
+          containerStyle={{ flex: 1 }}
+          onPress={closeBottomSheet}
+          type="secondary"
+          style={{ marginTop: 10 }}>
           Cancel
         </Button>
       </View>
@@ -171,5 +190,12 @@ const _styles = createStyleSheet((theme) => ({
   button: {
     marginTop: 32,
     width: 282,
+  },
+  actionWrapper: {
+    marginHorizontal: 'auto',
+    marginTop: 32,
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    gap: 8,
   },
 }));
