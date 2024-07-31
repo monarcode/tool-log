@@ -1,5 +1,4 @@
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Keyboard,
