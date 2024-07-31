@@ -1,7 +1,7 @@
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
-import { useRef, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Keyboard, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
@@ -17,7 +17,7 @@ const bottomInset = UnistylesRuntime.insets.bottom;
 
 const HomeScreen = () => {
   const { styles } = useStyles(_styles);
-  const account = useAccountStore((store) => store.account)
+  const account = useAccountStore((store) => store.account);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
   const [isScanningTool, setIsScanningTool] = useState(false);
@@ -49,12 +49,12 @@ const HomeScreen = () => {
     setIsScanningTool(false);
     setIsBottomSheetVisible(false);
   };
+
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-
         <View>
-          <Text style={styles.welcomeText}>{`Welcome ${account ? account.name : "there!"}`}</Text>
+          <Text style={styles.welcomeText}>{`Welcome ${account ? account.name : 'there!'}`}</Text>
         </View>
 
         <View style={styles.content}>
@@ -174,7 +174,7 @@ const _styles = createStyleSheet((theme) => ({
     marginBottom: 20,
     textTransform: 'capitalize',
     fontFamily: theme.fontFamily.semiBold,
-  }
+  },
 }));
 
 export default HomeScreen;

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { ScrollView, Image } from 'react-native';
+import { ScrollView } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import GoBack from '~/components/go-back';
 import Header from '~/components/header';
-import { View, Text } from '~/components/shared';
+import { View } from '~/components/shared';
 import Tool, { TOOL_STATUS } from '~/modules/my-tools/tool';
 import { useInventoryStore } from '~/store/inventory.store';
 const topInset = UnistylesRuntime.insets.top;

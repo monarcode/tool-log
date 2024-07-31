@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, FC } from 'react';
-import { View, Text, Animated, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef, FC } from 'react';
+import { Text, Animated } from 'react-native';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 
 import SuccessIcon from '~/assets/icons/success-toast.svg';

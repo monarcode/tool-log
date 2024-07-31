@@ -1,6 +1,5 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 import uuid from 'react-native-uuid';
@@ -100,7 +99,6 @@ const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToo
         });
       }
     }
-
   }, []);
   return (
     <View style={styles.container}>

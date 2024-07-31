@@ -1,32 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Get staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
-
-# Run format script on staged files
-echo "Running format script on staged files..."
-for FILE in $STAGED_FILES
-do
-  if [[ "$FILE" =~ \.(js|jsx|ts|tsx)$ ]]; then
-    npx eslint "$FILE" --fix || exit 1
-    npm run format "$FILE" || exit 1
-  elif [[ "$FILE" =~ \.json$ ]]; then
-    npx prettier --write "$FILE" || exit 1
-  fi
-done
-
-# Add back the modified files to staging
-echo "Adding formatted files back to staging..."
-git add $STAGED_FILES
-
-# Run TypeScript type checking
-echo "Running TypeScript type checking..."
-npx tsc --noEmit
-
-# If there are TypeScript errors, warn the user but allow the commit
-if [ $? -ne 0 ]; then
-  echo "⚠️ TypeScript errors were found. Please fix them before pushing."
-fi
-
-echo "Pre-commit hook completed."
+npx lint-staged

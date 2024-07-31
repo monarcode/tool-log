@@ -1,15 +1,13 @@
 import Entypo from '@expo/vector-icons/Entypo';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
+import { Image, ScrollView, TouchableOpacity } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import GoBack from '~/components/go-back';
-import { Button, Text, View } from '~/components/shared';
+import { Text, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
 import { useInventoryStore } from '~/store/inventory.store';
-import { colors } from '~/theme';
 import categories, { CATEGORY } from '~/utils/categories';
 
 const topInset = UnistylesRuntime.insets.top;

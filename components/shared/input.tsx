@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { TextInput as NativeTextInput, StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
+import { TextInput as NativeTextInput, TextStyle, View, ViewStyle } from 'react-native';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
