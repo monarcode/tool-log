@@ -5,7 +5,12 @@ import Search from '~/assets/icons/search.svg';
 import SortIcon from '~/assets/icons/sort-icon.svg';
 import { Button, TextInput, View } from '~/components/shared';
 
-const Header = ({ showSort = true, value = '', disabled=false, onChangeText = (ev) => null }: THeaderProps) => {
+const Header = ({
+  showSort = true,
+  value = '',
+  disabled = false,
+  onChangeText = (ev) => null,
+}: THeaderProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const { styles, theme } = useStyles(_styles);
 

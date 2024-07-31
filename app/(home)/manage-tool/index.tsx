@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { FlatList } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
@@ -6,8 +5,6 @@ import GoBack from '~/components/go-back';
 import { Text, View } from '~/components/shared';
 import ToolKit from '~/modules/manage-tool/toolkit';
 import { TOOL_STATUS } from '~/modules/my-tools/tool';
-import { useInventoryStore } from '~/store/inventory.store';
-import { colors } from '~/theme';
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 const dummyTools = [

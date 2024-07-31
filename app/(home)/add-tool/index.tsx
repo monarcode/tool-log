@@ -1,5 +1,4 @@
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Keyboard,
@@ -14,7 +13,6 @@ import GoBack from '~/components/go-back';
 import { Button, Dropdown, Text, TextInput, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
 import CreateToolPopup, { Payload } from '~/modules/add-tool/create-tool-popup';
-import { useInventoryStore } from '~/store/inventory.store';
 
 export const categoryOptions = ['Electrical', 'Mechanical', 'Hand Tool'];
 const topInset = UnistylesRuntime.insets.top;
