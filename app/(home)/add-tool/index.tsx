@@ -31,7 +31,6 @@ const AddToolScreen = () => {
   const [toolData, setToolData] = useState<Payload>(null!);
   // Memoize snapPoints
   const snapPoints = useMemo(() => ['45%'], []);
-  const router = useRouter();
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
@@ -48,7 +47,6 @@ const AddToolScreen = () => {
       category,
     });
 
-    // TODO: Add tool to the  NFC tag
     setIsAddingTool(false);
   };
 
@@ -81,7 +79,7 @@ const AddToolScreen = () => {
             contentContainerStyle={styles.scrollViewContent}
             keyboardShouldPersistTaps="handled">
             <View style={styles.subtitleContainer}>
-              <Text style={[styles.label, { fontSize: 24 }]}>Add New Tool</Text>
+              <Text style={[styles.label, { fontSize: 20 }]}>Add New Tool</Text>
               <Text style={[styles.label, { fontSize: 16, color: theme.colors.gray }]}>
                 Brief details of the tools
               </Text>
@@ -95,7 +93,10 @@ const AddToolScreen = () => {
                 style={styles.inputContainer}
               />
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, { marginBottom: 4 }]}>Category</Text>
+                <Text
+                  style={[styles.label, { marginBottom: 4, fontFamily: theme.fontFamily.regular }]}>
+                  Category
+                </Text>
                 <Dropdown
                   options={categoryOptions}
                   onSelect={setCategory}
@@ -185,7 +186,7 @@ const _styles = createStyleSheet((theme) => ({
     zIndex: 2,
   },
   subtitleContainer: {
-    marginTop: 140,
+    marginTop: 130,
   },
   contentContainer: {
     marginTop: 50,
