@@ -128,7 +128,7 @@ const AddToolScreen = () => {
                   value={description}
                   onChangeText={setDescription}
                   inputStyle={{ alignSelf: 'flex-start' }}
-                  containerStyle={{ height: 125, marginBottom: 24 }}
+                  containerStyle={{ marginBottom: 24 }}
                 />
 
                 <Button onPress={openBottomSheet}>Add Tool</Button>

@@ -9,12 +9,12 @@ export function useNfc() {
   const initializeNfc = async () => {
     try {
       const supported = await nfcManager.isSupported();
-      supported && nfcStoreStore.toggleSupported();
+      supported && nfcStoreStore.enableSupported();
 
       if (supported) {
         await nfcManager.start();
         const enabled = await nfcManager.isEnabled();
-        enabled && nfcStoreStore.toggleEnabled();
+        enabled && nfcStoreStore.enableEnabled();
       }
       return supported;
     } catch (error) {
@@ -79,8 +79,8 @@ export function useNfc() {
     initializeNfc();
   }, []);
 
-  const nfcAvailable = nfcStoreStore.supported || nfcStoreStore.enabled;
+  const nfcUnavailable = !nfcStoreStore.supported || !nfcStoreStore.enabled;
   const processing = nfcStoreStore.scanning || nfcStoreStore.writing;
 
-  return { nfcAvailable, readNfc, writeNfc, processing };
+  return { nfcUnavailable, readNfc, writeNfc, processing };
 }

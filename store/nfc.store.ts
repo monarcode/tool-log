@@ -12,6 +12,8 @@ export const useNfcStore = create<NfcStore>()((set, get) => ({
   toggleWriting: () => set({ writing: !get().writing }),
   disableScanning: () => set({ scanning: false }),
   updateStatus: (status) => set({ status }),
+  enableSupported: () => set({ supported: true }),
+  enableEnabled: () => set({ enabled: true }),
 }));
 
 interface NfcStoreState {
@@ -29,6 +31,8 @@ interface NfcStoreActions {
   toggleWriting: () => void;
   disableScanning: () => void;
   updateStatus: (status: string) => void;
+  enableSupported: () => void;
+  enableEnabled: () => void;
 }
 
 type NfcStore = NfcStoreState & NfcStoreActions;

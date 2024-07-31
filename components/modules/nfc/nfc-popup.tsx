@@ -8,7 +8,7 @@ import { useNfc } from '~/hooks/useNfc';
 import { useNfcStore } from '~/store/nfc.store';
 
 const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
-  const { nfcAvailable, processing } = useNfc();
+  const { nfcUnavailable, processing } = useNfc();
   const nfcStoreState = useNfcStore((v) => v);
   const { styles } = useStyles(_styles);
 
@@ -32,7 +32,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
   return (
     <View style={{ flex: 1 }}>
       {/* content when available */}
-      {nfcAvailable && (
+      {!nfcUnavailable && (
         <View style={styles.availableContainer}>
           <Text style={styles.title}>{popUpTitle}</Text>
           <NFCScan />
@@ -55,7 +55,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
       )}
 
       {/* content when not available */}
-      {!nfcAvailable && (
+      {nfcUnavailable && (
         <View style={styles.unavaileableContainer}>
           <NoNFC />
 
