@@ -5,6 +5,7 @@ import { Image, Modal, ScrollView, TouchableOpacity } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import GoBack from '~/components/go-back';
+import Empty from '~/assets/icons/empty-tool.svg';
 import { Button, Text, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
 import { useInventoryStore } from '~/store/inventory.store';
@@ -43,7 +44,7 @@ const ToolDetailScreen = () => {
       const timer = setTimeout(() => {
         router.back();
         setToastVisible(false);
-      }, 1000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [toastVisible]);
@@ -62,12 +63,13 @@ const ToolDetailScreen = () => {
     setToastMessage('Tool deleted successfully!');
     setToastType('success');
     setToastVisible(true);
+    setShowOption(false)
+    setModalVisible(false);
   };
 
   // For the modal
   const toggleModal = () => {
     setModalVisible(!modalVisible);
-    handleToggle();
   };
 
   return (
@@ -100,14 +102,10 @@ const ToolDetailScreen = () => {
             </View>
           )}
           {!getTool ? (
-            <View style={{ width: 100, height: 100, overflow: 'hidden' }}>
-              <Image
-                resizeMode="contain"
-                style={styles.toolImage}
-                source={require('../../../assets/images/empty-box.png')}
-              />
-              <Text style={styles.notFoundText}>Tool not found</Text>
-            </View>
+            <View style={styles.emptyContainer}>
+              <Empty />
+            <Text style={styles.textEmpty}>You have not added any tools yet</Text>
+          </View>
           ) : (
             <View>
               <Image
@@ -334,6 +332,20 @@ const _styles = createStyleSheet((theme) => ({
   toolsBtns: {
     marginTop: 25,
     gap: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    marginTop: 20,
+    height: 200,
+  },
+  textEmpty: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 10,
+    fontFamily: theme.fontFamily.medium,
   },
 
   // Modal
