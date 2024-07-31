@@ -17,7 +17,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
   return (
     <View style={{ flex: 1 }}>
       {/* content when available */}
-      {nfcAvailable && (
+      {!nfcAvailable && (
         <View style={styles.availableContainer}>
           <Text style={styles.title}>{popUpTitle}</Text>
           <NFCScan />
@@ -26,10 +26,11 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
           <View style={styles.actionWrapper}>
             <Button
               containerStyle={{ flex: 1 }}
-              onPress={onAction}
-              disabled={nfcStoreState.scanning || !nfcAvailable}>
-              {nfcStoreState.scanning ? 'loading...' : actionCopy}
+              disabled={nfcStoreState.scanning}
+              onPress={onAction}>
+              {nfcStoreState.scanning ? 'Processing...' : actionCopy}
             </Button>
+
             <Button
               containerStyle={{ flex: 1 }}
               onPress={onClose}
@@ -42,7 +43,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
       )}
 
       {/* content when not available */}
-      {!nfcAvailable && (
+      {nfcAvailable && (
         <View style={styles.unavaileableContainer}>
           <NoNFC />
 
@@ -105,4 +106,4 @@ const _styles = createStyleSheet((theme) => ({
 
 export default NfcPopup;
 
-type PopupProps = { mode: 'read' | 'write'; onClose: () => void; onAction: () => void };
+type PopupProps = { mode: 'read' | 'write'; onClose: () => void; onAction: () => Promise<void> };

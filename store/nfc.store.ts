@@ -5,6 +5,7 @@ export const useNfcStore = create<NfcStore>()((set) => ({
     supported: false,
     enabled: false,
     scanning: false,
+    writing: false,
     status: '',
   },
   updateState: (state) => set({ state: { ...state } }),
@@ -16,6 +17,7 @@ interface NfcStore {
     enabled?: boolean | undefined;
     scanning?: boolean | undefined;
     status?: string | undefined;
+    writing?: boolean | undefined;
   };
   updateState: (state: Partial<NfcStore['state']>) => void;
 }
