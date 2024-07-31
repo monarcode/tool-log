@@ -101,12 +101,7 @@ const CreateToolPopup = ({ closeBottomSheet, type = 'read', payload }: CreateToo
       }
     }
 
-    // TESTING
-    // setTimeout(()=>{
-    //   router.push(`/scan-tool/176fd963-7d55-4c30-be7e-e64b393b9d5e`);
-    // }, 100)
   }, []);
-
   return (
     <View style={styles.container}>
       <View style={{ alignItems: 'center' }}>
