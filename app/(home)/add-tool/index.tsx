@@ -36,7 +36,7 @@ const AddToolScreen = () => {
   const store = useInventoryStore((store) => store);
 
   // Memoize snapPoints
-  const snapPoints = useMemo(() => ['45%'], []);
+  const snapPoints = useMemo(() => ['50%'], []);
 
   const addToolSheet = useRef<BottomSheetModal>(null);
 
@@ -95,7 +95,7 @@ const AddToolScreen = () => {
             </View>
 
             <ScrollView
-              contentContainerStyle={styles.scrollViewContent}
+              contentContainerStyle={[styles.scrollViewContent]}
               keyboardShouldPersistTaps="handled">
               <View style={styles.subtitleContainer}>
                 <Text style={[styles.label, { fontSize: 20 }]}>Add New Tool</Text>
@@ -163,6 +163,7 @@ export default AddToolScreen;
 const _styles = createStyleSheet((theme) => ({
   container: {
     flex: 1,
+    paddingBottom: 24,
   },
   innerContainer: {
     flex: 1,
@@ -204,7 +205,7 @@ const _styles = createStyleSheet((theme) => ({
     marginTop: 130,
   },
   contentContainer: {
-    marginTop: 50,
+    marginTop: 30,
   },
   overlay: {
     position: 'absolute',

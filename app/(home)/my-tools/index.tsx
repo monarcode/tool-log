@@ -23,44 +23,47 @@ const MyToolsScreen = () => {
   );
 
   const sortedTools = () => {
-    if(isSorted){
+    if (isSorted) {
       return tools.sort((a: any, b: any) => a.name.localeCompare(b.name));
     }
     return tools;
-  }
-  
+  };
 
   return (
-      <View style={styles.mainContainer}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <GoBack />
-          </View>
-          <Header value={searchQuery} onChangeText={handleTextSearch} showSort 
-          onPress={() => setIsSorted(!isSorted)} />
+    <View style={styles.mainContainer}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <GoBack />
         </View>
-        <FlatList
-          data={sortedTools()}
-          keyExtractor={(tool) => tool.id.toString()}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <Tool
-              title={item.name}
-              category={item.category}
-              description={item.description}
-              status={item.isAvailable ? 'available' : ('unavailable' as TOOL_STATUS)}
-              lastUsed={item.updatedAt}
-              id={item.id}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <View style={styles.emptyContainer}>
-              <Empty />
-              <Text style={styles.textEmpty}>You have not added any tools yet</Text>
-            </View>
-          )}
+        <Header
+          value={searchQuery}
+          onChangeText={handleTextSearch}
+          showSort
+          onPress={() => setIsSorted(!isSorted)}
         />
       </View>
+      <FlatList
+        data={sortedTools()}
+        keyExtractor={(tool) => tool.id.toString()}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <Tool
+            title={item.name}
+            category={item.category}
+            description={item.description}
+            status={item.isAvailable ? 'available' : ('unavailable' as TOOL_STATUS)}
+            lastUsed={item.updatedAt}
+            id={item.id}
+          />
+        )}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Empty />
+            <Text style={styles.textEmpty}>You have not added any tools yet</Text>
+          </View>
+        )}
+      />
+    </View>
   );
 };
 
@@ -72,6 +75,7 @@ const _styles = createStyleSheet((theme) => ({
     flex: 1,
     paddingTop: topInset + 8,
     paddingBottom: bottomInset + 8,
+    backgroundColor: theme.colors.white,
   },
   emptyContainer: {
     flex: 1,

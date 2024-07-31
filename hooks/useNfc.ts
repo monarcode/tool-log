@@ -4,30 +4,29 @@ import nfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
 import { useNfcStore } from '~/store/nfc.store';
 
 export function useNfc() {
-  const nfcStoreState = useNfcStore((state) => state.state);
-  const nfcStoreUpdate = useNfcStore((state) => state.updateState);
+  const nfcStoreStore = useNfcStore((state) => state);
 
   const initializeNfc = async () => {
     try {
       const supported = await nfcManager.isSupported();
-      nfcStoreUpdate({ supported });
+      supported && nfcStoreStore.toggleSupported();
 
       if (supported) {
         await nfcManager.start();
         const enabled = await nfcManager.isEnabled();
-        nfcStoreUpdate({ enabled });
+        enabled && nfcStoreStore.toggleEnabled();
       }
       return supported;
     } catch (error) {
       console.error('Error initializing NFC:', error);
-      nfcStoreUpdate({ status: 'Error initializing NFC' });
+      nfcStoreStore.updateStatus('Error initializing NFC');
       return false;
     }
   };
 
   const readNfc = async () => {
-    nfcStoreUpdate({ scanning: true });
-    nfcStoreUpdate({ status: 'Scanning for NFC tag...' });
+    nfcStoreStore.toggleScanning();
+    nfcStoreStore.updateStatus('Scanning for NFC tag...');
 
     try {
       await nfcManager.requestTechnology(NfcTech.Ndef);
@@ -36,42 +35,43 @@ export function useNfc() {
       if (tag && tag.ndefMessage && tag.ndefMessage.length > 0) {
         const ndefRecord = tag.ndefMessage[0];
         const tagId = Ndef.text.decodePayload(new Uint8Array(ndefRecord.payload));
-        nfcStoreUpdate({ status: 'Tag read successfully' });
+        nfcStoreStore.updateStatus('Tag read successfully');
         // eslint-disable-next-line no-console
         console.log('NFC Data read:', tagId);
         return tagId;
       } else {
-        nfcStoreUpdate({ status: 'No NDEF message found on tag' });
+        nfcStoreStore.updateStatus('No NDEF message found on tag');
         return null;
       }
     } catch (ex) {
       console.error('Error reading NFC:', ex);
-      nfcStoreUpdate({ status: 'Error reading NFC tag' });
+      nfcStoreStore.updateStatus('Error reading NFC tag');
       return null;
     } finally {
       nfcManager.cancelTechnologyRequest();
-      nfcStoreUpdate({ scanning: false });
+      nfcStoreStore.toggleScanning();
       return null;
     }
   };
 
   const writeNfc = async (id: string) => {
-    nfcStoreUpdate({ scanning: true });
-    nfcStoreUpdate({ status: 'Ready to write. Approach an NFC tag...' });
+    if (nfcStoreStore.scanning) return;
+    nfcStoreStore.toggleScanning();
+    nfcStoreStore.updateStatus('Ready to write. Approach an NFC tag...');
 
     try {
       await nfcManager.requestTechnology(NfcTech.Ndef);
       const bytes = Ndef.encodeMessage([Ndef.textRecord(id)]);
       if (bytes) {
         await nfcManager.ndefHandler.writeNdefMessage(bytes);
-        nfcStoreUpdate({ status: 'Data written successfully' });
+        nfcStoreStore.updateStatus('Data written successfully');
       }
     } catch (ex) {
       console.error('Error writing NFC:', ex);
-      nfcStoreUpdate({ status: 'Error writing to NFC tag' });
+      nfcStoreStore.updateStatus('Error writing to NFC tag');
     } finally {
       nfcManager.cancelTechnologyRequest();
-      nfcStoreUpdate({ scanning: false });
+      nfcStoreStore.toggleScanning();
     }
   };
 
@@ -79,7 +79,8 @@ export function useNfc() {
     initializeNfc();
   }, []);
 
-  const nfcAvailable = nfcStoreState.supported || nfcStoreState.enabled;
+  const nfcAvailable = nfcStoreStore.supported || nfcStoreStore.enabled;
+  const processing = nfcStoreStore.scanning || nfcStoreStore.writing;
 
-  return { nfcAvailable, readNfc, writeNfc };
+  return { nfcAvailable, readNfc, writeNfc, processing };
 }
