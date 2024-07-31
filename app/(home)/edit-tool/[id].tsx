@@ -1,9 +1,17 @@
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Keyboard, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import {
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import GoBack from '~/components/go-back';
@@ -23,14 +31,16 @@ const EditToolScreen = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
-  const [isAddingTool, setIsAddingTool] = useState(false);
+  const [isAddingTool, setIsEditingTool] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [toolData, setToolData] = useState<Payload>(null!);
+  const router = useRouter();
+
 
   const { id } = useLocalSearchParams();
   const tools = useInventoryStore((store) => store.tools);
   const getTool = tools.filter((tool) => tool.id == id)[0];
-  console.log('getTool', getTool)
+  console.log('getTool', getTool);
 
   const [category, setCategory] = useState(getTool.category);
   const [toolName, setToolName] = useState(getTool.name);
@@ -50,7 +60,6 @@ const EditToolScreen = () => {
   const snapPoints = useMemo(() => ['45%'], []);
 
   const canAdd = Boolean(toolName && category && description);
-
   const closeBottomSheet = () => {
     if (!bottomSheetRef) return;
     bottomSheetRef?.current?.close();
@@ -61,11 +70,11 @@ const EditToolScreen = () => {
     console.log('handleSheetChanges', index);
   }, []);
 
-  const handleAddTool = () => {
+  const handleEditTool = () => {
     if (!canAdd) return;
     if (isAddingTool) return;
 
-    setIsAddingTool(true);
+    setIsEditingTool(true);
     setIsBottomSheetVisible(true);
     bottomSheetRef.current?.expand();
     const toolObj = {
@@ -74,13 +83,14 @@ const EditToolScreen = () => {
       category,
     };
 
-    updateTool(getTool.id, toolObj)
+    updateTool(getTool.id, toolObj);
     setToolData(toolObj);
 
     // TODO: Add tool to the  NFC tag
-    setIsAddingTool(false);
-  };
+    setIsEditingTool(false);
 
+    router.canGoBack() && router.back();
+  };
 
   return (
     <KeyboardAvoidingView
@@ -146,7 +156,7 @@ const EditToolScreen = () => {
                     marginTop: 32,
                     opacity: canAdd ? 1 : 0.6,
                   }}>
-                  <Button onPress={handleAddTool} disabled={!canAdd}>
+                  <Button onPress={handleEditTool} disabled={!canAdd}>
                     Save
                   </Button>
                 </View>
@@ -156,7 +166,7 @@ const EditToolScreen = () => {
         </View>
       </TouchableWithoutFeedback>
 
-      {isBottomSheetVisible && <View style={styles.overlay} />}
+      {/* {isBottomSheetVisible && <View style={styles.overlay} />}
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
@@ -170,7 +180,7 @@ const EditToolScreen = () => {
             closeBottomSheet={closeBottomSheet}
           />
         </BottomSheetView>
-      </BottomSheet>
+      </BottomSheet> */}
     </KeyboardAvoidingView>
   );
 };
@@ -184,6 +194,7 @@ const _styles = createStyleSheet((theme) => ({
   },
   container: {
     paddingHorizontal: theme.margins.containerMargin,
+    backgroundColor: theme.colors.white,
   },
   bodyContainer: {
     padding: theme.margins.containerMargin,
@@ -236,7 +247,7 @@ const _styles = createStyleSheet((theme) => ({
   errorDot: {
     width: 4.98,
     height: 4.98,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     borderRadius: 3,
   },
   successDot: {

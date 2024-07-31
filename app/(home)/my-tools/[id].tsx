@@ -2,7 +2,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { Image, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import GoBack from '~/components/go-back';
@@ -19,6 +19,7 @@ const ToolDetailScreen = () => {
   const [showOption, setShowOption] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
   const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
   const { updateTool } = useInventoryStore((store) => store);
   const { id } = useLocalSearchParams();
@@ -38,7 +39,7 @@ const ToolDetailScreen = () => {
     setToastVisible(true);
   };
 
-  const handleDelete = ()=>{
+  const handleDelete = () => {
     const $confirm = Alert.alert("Are you sure you want to delete?");
   }
 
@@ -59,79 +60,111 @@ const ToolDetailScreen = () => {
     router.navigate(`/edit-tool/${getTool.id}`)
   }
 
+  // Fot the modal
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
   return (
-    <ScrollView style={{ backgroundColor: 'white' }}>
-      {toastVisible && (
-        <Toast message={toastMessage} type={toastType} onClose={() => setToastVisible(false)} />
-      )}
-      <View style={styles.mainContainer}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <GoBack />
-
-            <TouchableOpacity onPress={handleToggle} style={styles.optionButton}>
-              <Entypo name="dots-three-vertical" size={15} color="#47474F" />
-            </TouchableOpacity>
-          </View>
-        </View>
-        {showOption && (
-          <View style={styles.selectCard}>
-            <TouchableOpacity onPress={handleEditTool}>
-              <Text style={styles.selectText}>Edit Tool</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleDelete}>
-              <Text style={styles.selectText}>Delete Tool</Text>
-            </TouchableOpacity>
-          </View>
+    <View style={{ flex: 1, backgroundColor: 'pink' }}>
+      <ScrollView style={{ backgroundColor: 'white' }}>
+        {toastVisible && (
+          <Toast message={toastMessage} type={toastType} onClose={() => setToastVisible(false)} />
         )}
-        {!getTool ? (
-          <View>
-            <Image
-              resizeMode="contain"
-              style={styles.toolImage}
-              source={require('../../../assets/images/empty-box.png')}
-            />
-            <Text style={styles.notFoundText}>Tool not found</Text>
-          </View>
-        ) : (
-          <View>
-            <Image
-              resizeMode="contain"
-              style={styles.toolImage}
-              source={categories(getTool.category as CATEGORY)}
-            />
-            <View style={styles.borderLine} />
-            <View style={styles.bodyContainer}>
-              <View style={styles.textCon}>
-                <Text style={styles.title}>{getTool.name}</Text>
-                <Text style={styles.category}>{getTool.category}</Text>
-              </View>
-              <View style={styles.detailCon}>
-                <View style={styles.subDetailCon}>
-                  <Text style={styles.category}>Current Status</Text>
-                  <View style={[getTool.isAvailable ? styles.successTagCon : styles.errorTagCon]}>
-                    <View style={[getTool.isAvailable ? styles.successDot : styles.errorDot]} />
-                    <Text style={{ fontSize: 8.72, fontWeight: '400' }}>
-                      {getTool.isAvailable ? 'Available' : 'Unavaiable'}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.subDetailCon}>
-                  <Text style={styles.category}>No of tools available</Text>
-                  <View style={styles.errorTagCon}>
-                    <Text style={{ fontSize: 8.72, fontWeight: '400' }}>17</Text>
-                  </View>
-                </View>
-              </View>
+        <View style={styles.mainContainer}>
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <GoBack />
 
-              <Text style={styles.description}>{getTool.description}</Text>
+              <TouchableOpacity onPress={handleToggle} style={styles.optionButton}>
+                <Entypo name="dots-three-vertical" size={15} color="#47474F" />
+              </TouchableOpacity>
             </View>
           </View>
-        )}
-        <View />
-        <View />
-      </View>
-    </ScrollView>
+          {showOption && (
+            <View style={styles.selectCard}>
+              <TouchableOpacity onPress={handleEditTool}>
+                <Text style={styles.selectText}>Edit Tool</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleDelete}>
+                <Text style={styles.selectText}>Delete Tool</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {!getTool ? (
+            <View>
+              <Image
+                resizeMode="contain"
+                style={styles.toolImage}
+                source={require('../../../assets/images/empty-box.png')}
+              />
+              <Text style={styles.notFoundText}>Tool not found</Text>
+            </View>
+          ) : (
+            <View>
+              <Image
+                resizeMode="contain"
+                style={styles.toolImage}
+                source={categories(getTool.category as CATEGORY)}
+              />
+              <View style={styles.borderLine} />
+              <View style={styles.bodyContainer}>
+                <View style={styles.textCon}>
+                  <Text style={styles.title}>{getTool.name}</Text>
+                  <Text style={styles.category}>{getTool.category}</Text>
+                </View>
+                <View style={styles.detailCon}>
+                  <View style={styles.subDetailCon}>
+                    <Text style={styles.category}>Current Status</Text>
+                    <View style={[getTool.isAvailable ? styles.successTagCon : styles.errorTagCon]}>
+                      <View style={[getTool.isAvailable ? styles.successDot : styles.errorDot]} />
+                      <Text style={{ fontSize: 8.72, fontWeight: '400' }}>
+                        {getTool.isAvailable ? 'Available' : 'Unavaiable'}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.subDetailCon}>
+                    <Text style={styles.category}>No of tools available</Text>
+                    <View style={styles.errorTagCon}>
+                      <Text style={{ fontSize: 8.72, fontWeight: '400' }}>17</Text>
+                    </View>
+                  </View>
+                </View>
+
+                <Text style={styles.description}>{getTool.description}</Text>
+              </View>
+            </View>
+          )}
+          <View />
+          <View />
+        </View>
+
+        <TouchableOpacity onPress={() => toggleModal()}>
+          <Text>Return tool</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      {/* Modal */}
+      <Modal visible={modalVisible} animationType="slide" transparent onRequestClose={toggleModal}>
+        <View style={{ flex: 1, width: '100%', height: '100%', justifyContent: 'center', padding: 4, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+          <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingVertical: 24, borderRadius: 16, backgroundColor: 'white' }}>
+            <View style={{ alignItems: 'center' }}>
+              <Text style={{ textAlign: 'center' }}>Confirm Deletion</Text>
+            </View>
+
+            <View>
+              <TouchableOpacity>
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={{}}>
+                <Text style={{ color: 'white' }}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal >
+    </View >
   );
 };
 export default ToolDetailScreen;
@@ -268,4 +301,16 @@ const _styles = createStyleSheet((theme) => ({
     marginTop: 25,
     gap: 20,
   },
+
+  // Modal
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
 }));
+
+
+
