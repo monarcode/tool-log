@@ -1,5 +1,8 @@
 # NFC App | TooLog 
 
+![app](https://github.com/user-attachments/assets/73525dae-92df-4a76-991f-b7573fbe1211)
+
+
 ## Overview
 
 This is a simple NFC app built using React Native Expo and TypeScript. ToolLog aims to streamline tool management on construction sites by leveraging NFC technology. It helps construction workers and managers keep track of their tools, reducing the chances of loss or misplacement. The app is built using React Native, making it compatible with both iOS and Android devices.
