@@ -22,7 +22,7 @@ const ToolDetailScreen = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [toastType, setToastType] = useState<'info' | 'success' | 'error' | 'warning'>('info');
-  const {updateTool } = useInventoryStore((store) => store);
+  const { updateTool } = useInventoryStore((store) => store);
   const { id } = useLocalSearchParams();
   const handleToggle = () => {
     setShowOption((option) => !option);
@@ -148,57 +148,53 @@ const ToolDetailScreen = () => {
       </ScrollView>
 
       {/* Modal */}
-        <Modal
-          visible={modalVisible}
-          animationType="slide"
-          transparent
-          onRequestClose={toggleModal}>
+      <Modal visible={modalVisible} animationType="slide" transparent onRequestClose={toggleModal}>
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            height: '100%',
+            justifyContent: 'center',
+            padding: 20,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}>
           <View
             style={{
-              flex: 1,
-              width: '100%',
-              height: '100%',
-              justifyContent: 'center',
-              padding: 20,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              alignItems: 'center',
+              padding: 24,
+              borderRadius: 16,
+              backgroundColor: 'white',
+              flexDirection: 'column',
+              gap: 8,
             }}>
-            <View
-              style={{
-                alignItems: 'center',
-                padding: 24,
-                borderRadius: 16,
-                backgroundColor: 'white',
-                flexDirection: 'column',
-                gap: 8,
-              }}>
-              <View style={{ alignItems: 'center' }}>
-                <Text style={[styles.text, { fontSize: 18, color: colors.text }]}>
-                  Confirm Deletion
-                </Text>
-              </View>
-
-              <Text style={[styles.text, { color: colors.text, fontSize: 12 }]}>
-                Are you sure you want to delete this tool? This action cannot be undone.
+            <View style={{ alignItems: 'center' }}>
+              <Text style={[styles.text, { fontSize: 18, color: colors.text }]}>
+                Confirm Deletion
               </Text>
+            </View>
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16 }}>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => toggleModal()}
-                  style={[styles.btn, { backgroundColor: colors.gray }]}>
-                  <Text style={[styles.text, { color: colors.text }]}>Cancel</Text>
-                </TouchableOpacity>
+            <Text style={[styles.text, { color: colors.text, fontSize: 12 }]}>
+              Are you sure you want to delete this tool? This action cannot be undone.
+            </Text>
 
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={handleDelete}
-                  style={[styles.btn, { backgroundColor: 'red' }]}>
-                  <Text style={styles.text}>Delete</Text>
-                </TouchableOpacity>
-              </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16 }}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => toggleModal()}
+                style={[styles.btn, { backgroundColor: colors.gray }]}>
+                <Text style={[styles.text, { color: colors.text }]}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleDelete}
+                style={[styles.btn, { backgroundColor: 'red' }]}>
+                <Text style={styles.text}>Delete</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </View>
+      </Modal>
     </View>
   );
 };
