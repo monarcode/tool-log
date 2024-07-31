@@ -1,15 +1,17 @@
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { Keyboard, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import AddTool from '~/assets/icons/add-tool.svg';
 import MyTools from '~/assets/icons/my-tools.svg';
 import ScanToolIcon from '~/assets/icons/scan-tag.svg';
+import CustomBackdrop from '~/components/modules/bottom-sheet/custom-backdrop';
+import NfcPopup from '~/components/modules/nfc/nfc-popup';
 import { Text, View } from '~/components/shared';
-import CreateToolPopup from '~/modules/add-tool/create-tool-popup';
+import { useNfc } from '~/hooks/useNfc';
 import { useAccountStore } from '~/store/account.store';
 
 const topInset = UnistylesRuntime.insets.top;
@@ -18,87 +20,84 @@ const bottomInset = UnistylesRuntime.insets.bottom;
 const HomeScreen = () => {
   const { styles } = useStyles(_styles);
   const account = useAccountStore((store) => store.account);
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
-  const [isScanningTool, setIsScanningTool] = useState(false);
-  // Memoize snapPoints
-  const snapPoints = useMemo(() => ['45%'], []);
+  const { readNfc } = useNfc();
 
-  const handleCreateTool = useCallback(() => {
-    router.push('/add-tool');
-  }, []);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
 
-  const handleScanTool =
-    // useCallback(
-    () => {
-      if (isScanningTool) return;
+  const snapPoints = useMemo(() => ['42%'], []);
 
-      setIsScanningTool(true);
-      setIsBottomSheetVisible(true);
-      bottomSheetRef.current?.expand();
-    };
-  // , [isScanningTool]);
-
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
+  const handleScanTool = () => {
+    bottomSheetRef.current?.present();
+  };
 
   const closeBottomSheet = () => {
     if (!bottomSheetRef) return;
-    bottomSheetRef?.current?.close();
-    setIsScanningTool(false);
-    setIsBottomSheetVisible(false);
+    bottomSheetRef?.current?.dismiss();
+  };
+
+  const handleScan = async () => {
+    const tagId = await readNfc();
+    if (!tagId) return;
+    router.navigate(`/scan-tool/${tagId}`);
   };
 
   return (
-    <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
-        <View>
-          <Text style={styles.welcomeText}>{`Welcome ${account ? account.name : 'there!'}`}</Text>
-        </View>
-
-        <View style={styles.content}>
-          <Image
-            source={require('../../assets/logo.png')}
-            style={styles.logo}
-            contentFit="contain"
+    <BottomSheetModalProvider>
+      <BottomSheetModal
+        ref={bottomSheetRef}
+        index={0}
+        snapPoints={snapPoints}
+        backdropComponent={({ animatedIndex, style, animatedPosition }) => (
+          <CustomBackdrop
+            style={style}
+            animatedIndex={animatedIndex}
+            animatedPosition={animatedPosition}
+            close={closeBottomSheet}
           />
+        )}
+        enablePanDownToClose>
+        <BottomSheetView style={styles.sheetContentContainer}>
+          {/* <CreateToolPopup closeBottomSheet={closeBottomSheet} /> */}
+          <NfcPopup mode="read" onClose={closeBottomSheet} onAction={handleScan} />
+        </BottomSheetView>
+      </BottomSheetModal>
 
-          <View style={styles.actions}>
-            <Pressable style={styles.action} onPress={handleScanTool} disabled={isScanningTool}>
-              <ScanToolIcon style={styles.icon} />
+      <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View>
+            <Text style={styles.welcomeText}>{`Welcome ${account ? account.name : 'there!'}`}</Text>
+          </View>
 
-              <Text style={styles.label}>Scan Tool</Text>
-            </Pressable>
+          <View style={styles.content}>
+            <Image source={require('~/assets/logo.png')} style={styles.logo} contentFit="contain" />
 
-            <Pressable style={styles.action} onPress={handleCreateTool}>
-              <AddTool style={styles.icon} />
+            <View style={styles.actions}>
+              <Pressable style={styles.action} onPress={handleScanTool}>
+                <ScanToolIcon style={styles.icon} />
 
-              <Text style={styles.label}>Add New Tool</Text>
-            </Pressable>
-
-            <Link href="/my-tools" asChild>
-              <Pressable style={styles.action}>
-                <MyTools style={styles.icon} />
-
-                <Text style={styles.label}>My tools</Text>
+                <Text style={styles.label}>Scan Tool</Text>
               </Pressable>
-            </Link>
+
+              <Link href="/add-tool" asChild>
+                <Pressable style={styles.action}>
+                  <AddTool style={styles.icon} />
+
+                  <Text style={styles.label}>Add New Tool</Text>
+                </Pressable>
+              </Link>
+
+              <Link href="/my-tools" asChild>
+                <Pressable style={styles.action}>
+                  <MyTools style={styles.icon} />
+
+                  <Text style={styles.label}>My tools</Text>
+                </Pressable>
+              </Link>
+            </View>
           </View>
         </View>
-        {isBottomSheetVisible && <View style={styles.overlay} />}
-        <BottomSheet
-          ref={bottomSheetRef}
-          index={-1}
-          snapPoints={snapPoints}
-          onChange={handleSheetChanges}
-          enablePanDownToClose>
-          <BottomSheetView style={styles.sheetContentContainer}>
-            <CreateToolPopup closeBottomSheet={closeBottomSheet} />
-          </BottomSheetView>
-        </BottomSheet>
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </BottomSheetModalProvider>
   );
 };
 

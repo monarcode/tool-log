@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 
 interface DropdownProps {
@@ -10,7 +10,7 @@ interface DropdownProps {
 }
 
 export const Dropdown: React.FC<DropdownProps> = ({ options, onSelect, placeholder }) => {
-  const { styles } = useStyles(_styles);
+  const { styles, theme } = useStyles(_styles);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState('');
 
@@ -28,7 +28,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ options, onSelect, placehold
         <Text style={{ color: selectedItem ? 'black' : '#999' }}>
           {selectedItem || placeholder}
         </Text>
-        <Ionicons name="chevron-down" size={24} color={selectedItem ? 'black' : '#999'} />
+        <Ionicons name="chevron-down" size={20} color={selectedItem ? '#333' : '#667085'} />
       </TouchableOpacity>
       {isOpen && (
         <ScrollView style={styles.dropdownList}>
@@ -49,7 +49,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ options, onSelect, placehold
 const _styles = createStyleSheet((theme) => ({
   dropdownContainer: {
     position: 'relative',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderRadius: 8,
     borderColor: theme.colors.gray,
   },
@@ -78,7 +78,8 @@ const _styles = createStyleSheet((theme) => ({
     borderBottomColor: '#f0f0f0',
   },
   dropdownItemText: {
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: theme.fontFamily.regular,
   },
   selectedItem: {
     backgroundColor: '#f0f0f0',

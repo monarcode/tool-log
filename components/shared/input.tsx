@@ -55,6 +55,7 @@ export const TextInput: React.FC<TextInputProps> = ({
           onChangeText={onChangeText}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          placeholderTextColor="#A9A09E"
         />
       </Animated.View>
     </View>
