@@ -10,6 +10,7 @@ const Header = ({
   value = '',
   disabled = false,
   onChangeText = (ev) => null,
+  onPress
 }: THeaderProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const { styles, theme } = useStyles(_styles);
@@ -28,6 +29,7 @@ const Header = ({
         {showSort && (
           <Button
             type="outline"
+            onPress={onPress}
             containerStyle={{ alignSelf: 'flex-start', paddingHorizontal: theme.margins.xl }}>
             <SortIcon />
           </Button>
@@ -51,4 +53,5 @@ type THeaderProps = {
   value?: string;
   disabled?: boolean;
   onChangeText?: (text?: string) => void;
+  onPress: () => void;
 };
