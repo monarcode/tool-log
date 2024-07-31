@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView } from 'react-native';
+import { FlatList } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import Empty from '~/assets/icons/empty-tool.svg';
@@ -15,44 +15,52 @@ const bottomInset = UnistylesRuntime.insets.bottom;
 const MyToolsScreen = () => {
   const { styles } = useStyles(_styles);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSorted, setIsSorted] = useState(false);
   const handleTextSearch = (text?: string) => setSearchQuery(text as string);
   const $tools = useInventoryStore((store) => store.tools);
   const tools = $tools.filter((tool) =>
     tool.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const sortedTools = () => {
+    if(isSorted){
+      return tools.sort((a: any, b: any) => a.name.localeCompare(b.name));
+    }
+    return tools;
+  }
+  
+
   return (
-    <ScrollView style={{ backgroundColor: 'white' }}>
       <View style={styles.mainContainer}>
         <View style={styles.container}>
           <View style={styles.header}>
             <GoBack />
           </View>
-          <Header value={searchQuery} onChangeText={handleTextSearch} showSort />
+          <Header value={searchQuery} onChangeText={handleTextSearch} showSort 
+          onPress={() => setIsSorted(!isSorted)} />
         </View>
-
-        {tools.length > 0 ? (
-          tools.map((tool, index) => {
-            return (
-              <Tool
-                title={tool.name}
-                category={tool.category}
-                description={tool.description}
-                status={tool.isAvailable ? 'available' : ('unavailable' as TOOL_STATUS)}
-                lastUsed={tool.updatedAt}
-                id={tool.id}
-                key={tool.id}
-              />
-            );
-          })
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Empty />
-            <Text style={styles.textEmpty}>You have not added any tools yet</Text>
-          </View>
-        )}
+        <FlatList
+          data={sortedTools()}
+          keyExtractor={(tool) => tool.id.toString()}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <Tool
+              title={item.name}
+              category={item.category}
+              description={item.description}
+              status={item.isAvailable ? 'available' : ('unavailable' as TOOL_STATUS)}
+              lastUsed={item.updatedAt}
+              id={item.id}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Empty />
+              <Text style={styles.textEmpty}>You have not added any tools yet</Text>
+            </View>
+          )}
+        />
       </View>
-    </ScrollView>
   );
 };
 
