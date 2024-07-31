@@ -8,15 +8,16 @@ import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unis
 import AddTool from '~/assets/icons/add-tool.svg';
 import MyTools from '~/assets/icons/my-tools.svg';
 import ScanToolIcon from '~/assets/icons/scan-tag.svg';
-import Header from '~/components/header';
 import { Text, View } from '~/components/shared';
 import CreateToolPopup from '~/modules/add-tool/create-tool-popup';
+import { useAccountStore } from '~/store/account.store';
 
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
 
 const HomeScreen = () => {
   const { styles } = useStyles(_styles);
+  const account = useAccountStore((store) => store.account)
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
   const [isScanningTool, setIsScanningTool] = useState(false);
@@ -51,7 +52,11 @@ const HomeScreen = () => {
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <Header showSort={false} />
+
+        <View>
+          <Text style={styles.welcomeText}>{`Welcome ${account ? account.name : "there!"}`}</Text>
+        </View>
+
         <View style={styles.content}>
           <Image
             source={require('../../assets/logo.png')}
@@ -111,7 +116,7 @@ const _styles = createStyleSheet((theme) => ({
   },
   content: {
     flex: 1,
-    paddingTop: 50,
+    paddingTop: 32,
     alignItems: 'center',
     rowGap: 32,
     width: '100%',
@@ -130,7 +135,6 @@ const _styles = createStyleSheet((theme) => ({
   action: {
     flex: 1,
     minWidth: '44%',
-    // maxWidth: '48%',
     height: 200,
     backgroundColor: '#fafafa',
     borderRadius: 10,
@@ -165,6 +169,12 @@ const _styles = createStyleSheet((theme) => ({
     flex: 1,
     alignItems: 'center',
   },
+  welcomeText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textTransform: 'capitalize',
+    fontFamily: theme.fontFamily.semiBold,
+  }
 }));
 
 export default HomeScreen;

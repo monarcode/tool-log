@@ -13,10 +13,10 @@ export type InventoryState = {
 };
 
 export type InventoryActions = {
-  addTool: (item: Pick<InventoryItem, 'name' | 'description' | 'category'| 'id'>) => void;
+  addTool: (item: Pick<InventoryItem, 'name' | 'description' | 'category' | 'id'>) => void;
   updateTool: (
     id: string,
-    item: Partial<Pick<InventoryItem, 'name' | 'description' | 'category'|'isAvailable'>>
+    item: Partial<Pick<InventoryItem, 'name' | 'description' | 'category' | 'isAvailable'>>
   ) => void;
   deleteTool: (id: string) => void;
 };

@@ -105,8 +105,8 @@ const ScanToolDetailScreen = () => {
               <View style={styles.detailCon}>
                 <View style={styles.subDetailCon}>
                   <Text style={styles.category}>Current Status</Text>
-                  <View style={[getTool.isAvailable?styles.successTagCon:styles.errorTagCon]}>
-                    <View style={[getTool.isAvailable?styles.successDot: styles.errorDot]} />
+                  <View style={[getTool.isAvailable ? styles.successTagCon : styles.errorTagCon]}>
+                    <View style={[getTool.isAvailable ? styles.successDot : styles.errorDot]} />
                     <Text style={{ fontSize: 8.72, fontWeight: '400' }}>
                       {getTool.isAvailable ? 'Available' : 'Unavaiable'}
                     </Text>
@@ -122,15 +122,18 @@ const ScanToolDetailScreen = () => {
 
               <Text style={styles.description}>{getTool.description}</Text>
               <View style={styles.toolsBtns}>
-                <View    style={{ opacity: !getTool.isAvailable ? 0.5 : 1 }}>
-                  <Button    type={!getTool.isAvailable ? "secondary":"primary"} disabled={!getTool.isAvailable} onPress={handleCollectTool}>
+                <View style={{ opacity: !getTool.isAvailable ? 0.5 : 1 }}>
+                  <Button
+                    type={!getTool.isAvailable ? 'secondary' : 'primary'}
+                    disabled={!getTool.isAvailable}
+                    onPress={handleCollectTool}>
                     Collect Tool
                   </Button>
                 </View>
-                <View  style={{ opacity: getTool.isAvailable ? 0.5 : 1 }}>
+                <View style={{ opacity: getTool.isAvailable ? 0.5 : 1 }}>
                   <Button
                     disabled={getTool.isAvailable}
-                    type={getTool.isAvailable ? "secondary":"primary"}
+                    type={getTool.isAvailable ? 'secondary' : 'primary'}
                     onPress={handleReturnTool}>
                     Return Tool
                   </Button>
@@ -207,7 +210,7 @@ const _styles = createStyleSheet((theme) => ({
   errorDot: {
     width: 4.98,
     height: 4.98,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     borderRadius: 3,
   },
   successDot: {

@@ -1,6 +1,4 @@
-import Entypo from '@expo/vector-icons/Entypo';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -9,18 +7,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
+import { categoryOptions } from '../add-tool';
+
 import GoBack from '~/components/go-back';
 import { Button, Dropdown, Text, TextInput, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
+import { Payload } from '~/modules/add-tool/create-tool-popup';
 import { useInventoryStore } from '~/store/inventory.store';
 import categories, { CATEGORY } from '~/utils/categories';
-import CreateToolPopup, { Payload } from '~/modules/add-tool/create-tool-popup';
-import { categoryOptions } from '../add-tool';
 
 const topInset = UnistylesRuntime.insets.top;
 const bottomInset = UnistylesRuntime.insets.bottom;
@@ -35,7 +33,6 @@ const EditToolScreen = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [toolData, setToolData] = useState<Payload>(null!);
   const router = useRouter();
-
 
   const { id } = useLocalSearchParams();
   const tools = useInventoryStore((store) => store.tools);

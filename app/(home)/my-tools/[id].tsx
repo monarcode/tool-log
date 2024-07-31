@@ -9,6 +9,7 @@ import GoBack from '~/components/go-back';
 import { Button, Text, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
 import { useInventoryStore } from '~/store/inventory.store';
+import { colors } from '~/theme';
 import categories, { CATEGORY } from '~/utils/categories';
 
 const topInset = UnistylesRuntime.insets.top;
@@ -39,30 +40,36 @@ const ToolDetailScreen = () => {
     setToastVisible(true);
   };
 
-  const handleDelete = () => {
-    const $confirm = Alert.alert("Are you sure you want to delete?");
-  }
-
   useEffect(() => {
     if (toastVisible) {
       const timer = setTimeout(() => {
+        router.back();
         setToastVisible(false);
-      }, 3000);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [toastVisible]);
 
   const tools = useInventoryStore((store) => store.tools);
-  const getTool = tools.filter((tool) => tool.id == id)[0];
+  const deleteTool = useInventoryStore((store) => store.deleteTool);
+  const getTool = tools.filter((tool) => tool.id === id)[0];
 
   const handleEditTool = () => {
     setShowOption((option) => !option);
-    router.navigate(`/edit-tool/${getTool.id}`)
-  }
+    router.navigate(`/edit-tool/${getTool.id}`);
+  };
 
-  // Fot the modal
+  const handleDelete = () => {
+    deleteTool(getTool.id);
+    setToastMessage('Tool deleted successfully!');
+    setToastType('success');
+    setToastVisible(true);
+  };
+
+  // For the modal
   const toggleModal = () => {
     setModalVisible(!modalVisible);
+    handleToggle();
   };
 
   return (
@@ -86,13 +93,13 @@ const ToolDetailScreen = () => {
               <TouchableOpacity onPress={handleEditTool}>
                 <Text style={styles.selectText}>Edit Tool</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleDelete}>
+              <TouchableOpacity onPress={toggleModal}>
                 <Text style={styles.selectText}>Delete Tool</Text>
               </TouchableOpacity>
             </View>
           )}
           {!getTool ? (
-            <View>
+            <View style={{ width: 100, height: 100, overflow: 'hidden' }}>
               <Image
                 resizeMode="contain"
                 style={styles.toolImage}
@@ -138,33 +145,57 @@ const ToolDetailScreen = () => {
           <View />
           <View />
         </View>
-
-        <TouchableOpacity onPress={() => toggleModal()}>
-          <Text>Return tool</Text>
-        </TouchableOpacity>
       </ScrollView>
 
       {/* Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent onRequestClose={toggleModal}>
-        <View style={{ flex: 1, width: '100%', height: '100%', justifyContent: 'center', padding: 4, backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
-          <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingVertical: 24, borderRadius: 16, backgroundColor: 'white' }}>
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            height: '100%',
+            justifyContent: 'center',
+            padding: 20,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}>
+          <View
+            style={{
+              alignItems: 'center',
+              padding: 24,
+              borderRadius: 16,
+              backgroundColor: 'white',
+              flexDirection: 'column',
+              gap: 8,
+            }}>
             <View style={{ alignItems: 'center' }}>
-              <Text style={{ textAlign: 'center' }}>Confirm Deletion</Text>
+              <Text style={[styles.text, { fontSize: 18, color: colors.text }]}>
+                Confirm Deletion
+              </Text>
             </View>
 
-            <View>
-              <TouchableOpacity>
-                <Text>Cancel</Text>
+            <Text style={[styles.text, { color: colors.text, fontSize: 12 }]}>
+              Are you sure you want to delete this tool? This action cannot be undone.
+            </Text>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16 }}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => toggleModal()}
+                style={[styles.btn, { backgroundColor: colors.gray }]}>
+                <Text style={[styles.text, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={{}}>
-                <Text style={{ color: 'white' }}>Delete</Text>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleDelete}
+                style={[styles.btn, { backgroundColor: 'red' }]}>
+                <Text style={styles.text}>Delete</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
-      </Modal >
-    </View >
+      </Modal>
+    </View>
   );
 };
 export default ToolDetailScreen;
@@ -230,7 +261,7 @@ const _styles = createStyleSheet((theme) => ({
   errorDot: {
     width: 4.98,
     height: 4.98,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     borderRadius: 3,
   },
   successDot: {
@@ -286,6 +317,12 @@ const _styles = createStyleSheet((theme) => ({
     gap: 3,
     flexDirection: 'row',
   },
+  text: {
+    fontSize: 14,
+    fontFamily: theme.fontFamily.medium,
+    color: theme.colors.white,
+    textAlign: 'center',
+  },
   detailCon: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -310,7 +347,10 @@ const _styles = createStyleSheet((theme) => ({
     justifyContent: 'center',
     padding: 16,
   },
+  btn: {
+    padding: 12,
+    flex: 1,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
 }));
-
-
-
