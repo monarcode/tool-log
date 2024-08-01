@@ -68,13 +68,14 @@ const AddToolScreen = () => {
         description: payload?.description || '',
         name: payload?.name || '',
       });
+      Alert.alert('Success', 'Tool added successfully');
+      router.replace(`/my-tools`);
     } catch (error) {
-      Alert.alert('Error', 'Error writing to NFC');
+      console.error('Error saving tool:', error);
+      Alert.alert('Error', 'Failed to write NFC tag. Please try again.');
     } finally {
       closeBottomSheet();
     }
-
-    router.replace(`/my-tools`);
   };
 
   return (

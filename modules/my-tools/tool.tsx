@@ -1,12 +1,14 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Image, Pressable } from 'react-native';
+import { Pressable } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 
-import { View, Text } from '~/components/shared';
+import { Text, View } from '~/components/shared';
 import categories, { CATEGORY } from '~/utils/categories';
 
 export type TOOL_STATUS = 'available' | 'unavailable';
+
 export interface ToolProps {
   id: string | number;
   title: string;
@@ -20,9 +22,11 @@ const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps)
   const { styles } = useStyles(_style);
   const isAvailable = status === 'available';
   const router = useRouter();
+
   const goToDetailsScreen = () => {
     router.navigate(`/my-tools/${id}`);
   };
+
   return (
     <Pressable onPress={goToDetailsScreen} style={styles.toolWrapper}>
       <View
@@ -33,10 +37,11 @@ const Tool = ({ id, category, description, lastUsed, status, title }: ToolProps)
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <Image
+        <Animated.Image
           resizeMode="cover"
           style={styles.toolImage}
           source={categories(category as CATEGORY)}
+          sharedTransitionTag={`tool-${id}`}
         />
       </View>
 

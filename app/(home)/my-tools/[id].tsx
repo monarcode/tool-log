@@ -1,11 +1,12 @@
 import Entypo from '@expo/vector-icons/Entypo';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Modal, ScrollView, TouchableOpacity } from 'react-native';
+import { Modal, ScrollView, TouchableOpacity } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
-import GoBack from '~/components/go-back';
 import Empty from '~/assets/icons/empty-tool.svg';
+import GoBack from '~/components/go-back';
 import { Button, Text, View } from '~/components/shared';
 import Toast from '~/components/shared/toast';
 import { useInventoryStore } from '~/store/inventory.store';
@@ -63,7 +64,7 @@ const ToolDetailScreen = () => {
     setToastMessage('Tool deleted successfully!');
     setToastType('success');
     setToastVisible(true);
-    setShowOption(false)
+    setShowOption(false);
     setModalVisible(false);
   };
 
@@ -104,14 +105,15 @@ const ToolDetailScreen = () => {
           {!getTool ? (
             <View style={styles.emptyContainer}>
               <Empty />
-            <Text style={styles.textEmpty}>You have not added any tools yet</Text>
-          </View>
+              <Text style={styles.textEmpty}>You have not added any tools yet</Text>
+            </View>
           ) : (
             <View>
-              <Image
+              <Animated.Image
                 resizeMode="contain"
                 style={styles.toolImage}
                 source={categories(getTool.category as CATEGORY)}
+                sharedTransitionTag={`tool-${id}`}
               />
               <View style={styles.bodyContainer}>
                 <View style={styles.textCon}>

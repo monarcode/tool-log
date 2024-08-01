@@ -4,7 +4,7 @@ export default (category: CATEGORY) => {
     return require('~/assets/images/categories/electrical.png');
   }
 
-  if (category.toLowerCase() === 'hand') {
+  if (category.toLowerCase() === 'hand tool') {
     return require('~/assets/images/categories/hand.png');
   }
   if (category.toLowerCase() === 'mechanical') {

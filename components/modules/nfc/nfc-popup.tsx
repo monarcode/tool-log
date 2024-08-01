@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
 
 import NoNFC from '~/assets/icons/no-nfc.svg';
@@ -32,7 +33,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
   return (
     <View style={{ flex: 1 }}>
       {/* content when available */}
-      {!nfcUnavailable && (
+      {nfcUnavailable && (
         <View style={styles.availableContainer}>
           <Text style={styles.title}>{popUpTitle}</Text>
           <NFCScan />
@@ -40,7 +41,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
 
           <View style={styles.actionWrapper}>
             <Button containerStyle={{ flex: 1 }} disabled={processing} onPress={onActionStart}>
-              {processing ? 'Processing...' : actionCopy}
+              {processing ? <ActivityIndicator color="#fff" /> : actionCopy}
             </Button>
 
             <Button
@@ -55,7 +56,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
       )}
 
       {/* content when not available */}
-      {nfcUnavailable && (
+      {!nfcUnavailable && (
         <View style={styles.unavaileableContainer}>
           <NoNFC />
 
