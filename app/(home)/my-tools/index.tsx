@@ -6,7 +6,8 @@ import Empty from '~/assets/icons/empty-tool.svg';
 import GoBack from '~/components/go-back';
 import Header from '~/components/header';
 import { Text, View } from '~/components/shared';
-import Tool, { TOOL_STATUS } from '~/modules/my-tools/tool';
+import { TOOL_STATUS } from '~/modules/my-tools/tool';
+import ToolCard from '~/modules/my-tools/tool-card';
 import { useInventoryStore } from '~/store/inventory.store';
 
 const topInset = UnistylesRuntime.insets.top;
@@ -46,14 +47,17 @@ const MyToolsScreen = () => {
         data={sortedTools()}
         keyExtractor={(tool) => tool.id.toString()}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 24 }}
         renderItem={({ item }) => (
-          <Tool
-            title={item.name}
-            category={item.category}
-            description={item.description}
-            status={item.isAvailable ? 'available' : ('unavailable' as TOOL_STATUS)}
-            lastUsed={item.updatedAt}
-            id={item.id}
+          <ToolCard
+            tool={{
+              title: item.name,
+              category: item.category,
+              description: item.description,
+              status: item.isAvailable ? 'available' : ('unavailable' as TOOL_STATUS),
+              lastUsed: item.updatedAt,
+              id: item.id,
+            }}
           />
         )}
         ListEmptyComponent={() => (
