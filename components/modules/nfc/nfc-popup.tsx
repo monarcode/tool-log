@@ -32,7 +32,7 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
     }
   }, [scanning, onClose, disableScanning, updateStatus]);
 
-  if (!nfcUnavailable) {
+  if (nfcUnavailable) {
     return (
       <View style={styles.unavaileableContainer}>
         <NoNFC />
