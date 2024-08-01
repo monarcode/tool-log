@@ -2,7 +2,7 @@ import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@go
 import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
 import { useMemo, useRef } from 'react';
-import { Keyboard, Pressable, TouchableWithoutFeedback } from 'react-native';
+import { Alert, Keyboard, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
 import AddTool from '~/assets/icons/add-tool.svg';
@@ -36,12 +36,32 @@ const HomeScreen = () => {
   };
 
   const handleScan = async () => {
-    const tagId = await readNfc();
-    if (!tagId) {
-      router.push('/add-tool');
-      return;
+    try {
+      const tagId = await readNfc();
+
+      if (!tagId) {
+        Alert.alert('No Tag Found', 'Would you like to add a new tool?', [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Add New Tool',
+            onPress: () => router.push('/add-tool'),
+          },
+        ]);
+        return;
+      }
+
+      router.navigate(`/scan-tool/${tagId}`);
+    } catch (error) {
+      console.error('Error scanning NFC:', error);
+      Alert.alert(
+        'Scan Error',
+        'There was an error while scanning the NFC tag. Please try again.',
+        [{ text: 'OK' }]
+      );
     }
-    router.navigate(`/scan-tool/${tagId}`);
   };
 
   return (
@@ -146,7 +166,7 @@ const _styles = createStyleSheet((theme) => ({
     flexShrink: 0,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: theme.fontFamily.semiBold,
   },
   icon: {
