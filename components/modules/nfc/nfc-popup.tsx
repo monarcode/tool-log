@@ -10,7 +10,7 @@ import { useNfcStore } from '~/store/nfc.store';
 
 const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
   const { nfcUnavailable, processing } = useNfc();
-  const nfcStoreState = useNfcStore((v) => v);
+  const { scanning, status, disableScanning, updateStatus } = useNfcStore();
   const { styles } = useStyles(_styles);
 
   const popUpTitle = mode === 'read' ? 'Ready to Read' : 'Ready to Write';
@@ -22,52 +22,49 @@ const NfcPopup = ({ mode, onClose, onAction }: PopupProps) => {
   };
 
   useEffect(() => {
-    if (nfcStoreState.scanning) {
-      setTimeout(() => {
+    if (scanning) {
+      const timer = setTimeout(() => {
         onClose();
-        nfcStoreState.disableScanning();
-      }, 60000);
+        updateStatus('Timed out. Please try again');
+      }, 30000);
+
+      return () => clearTimeout(timer);
     }
-  }, [nfcStoreState.scanning]);
+  }, [scanning, onClose, disableScanning, updateStatus]);
+
+  if (nfcUnavailable) {
+    return (
+      <View style={styles.unavaileableContainer}>
+        <NoNFC />
+        <View style={{ alignItems: 'center', gap: 8 }}>
+          <Text style={styles.errorTitle}>NFC Unavailable</Text>
+          <Text style={styles.errorSubTitle}>
+            NFC unavailable. Enable NFC in device settings or use alternative method.
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* content when available */}
-      {!nfcUnavailable && (
-        <View style={styles.availableContainer}>
-          <Text style={styles.title}>{popUpTitle}</Text>
-          <NFCScan />
-          <Text style={styles.subtitle}>Approach an NFC Tag</Text>
+    <View style={styles.availableContainer}>
+      <Text style={styles.title}>{popUpTitle}</Text>
+      <NFCScan />
+      <Text style={styles.subtitle}>{processing ? status : 'Approach an NFC Tag'}</Text>
 
-          <View style={styles.actionWrapper}>
-            <Button containerStyle={{ flex: 1 }} disabled={processing} onPress={onActionStart}>
-              {processing ? <ActivityIndicator color="#fff" /> : actionCopy}
-            </Button>
+      <View style={styles.actionWrapper}>
+        <Button containerStyle={{ flex: 1 }} disabled={processing} onPress={onActionStart}>
+          {processing ? <ActivityIndicator color="#fff" /> : actionCopy}
+        </Button>
 
-            <Button
-              containerStyle={{ flex: 1 }}
-              onPress={onClose}
-              type="secondary"
-              style={{ marginTop: 10 }}>
-              Cancel
-            </Button>
-          </View>
-        </View>
-      )}
-
-      {/* content when not available */}
-      {nfcUnavailable && (
-        <View style={styles.unavaileableContainer}>
-          <NoNFC />
-
-          <View style={{ alignItems: 'center', gap: 8 }}>
-            <Text style={styles.errorTitle}>NFC Unavailable</Text>
-            <Text style={styles.errorSubTitle}>
-              NFC unavailable. Enable NFC in device settings or use alternative method.
-            </Text>
-          </View>
-        </View>
-      )}
+        <Button
+          containerStyle={{ flex: 1 }}
+          onPress={onClose}
+          type="secondary"
+          style={{ marginTop: 10 }}>
+          Cancel
+        </Button>
+      </View>
     </View>
   );
 };
