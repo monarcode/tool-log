@@ -1,7 +1,7 @@
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
-import { useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Alert, Keyboard, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles';
 
@@ -13,14 +13,15 @@ import NfcPopup from '~/components/modules/nfc/nfc-popup';
 import { Text, View } from '~/components/shared';
 import { useNfc } from '~/hooks/useNfc';
 import { useAccountStore } from '~/store/account.store';
+import { useNfcStore } from '~/store/nfc.store';
 
-const topInset = UnistylesRuntime.insets.top;
-const bottomInset = UnistylesRuntime.insets.bottom;
+const { top: topInset, bottom: bottomInset } = UnistylesRuntime.insets;
 
-const HomeScreen = () => {
+const HomeScreen: React.FC = () => {
   const { styles } = useStyles(_styles);
   const account = useAccountStore((store) => store.account);
   const { readNfc } = useNfc();
+  const { disableScanning } = useNfcStore();
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -31,8 +32,8 @@ const HomeScreen = () => {
   };
 
   const closeBottomSheet = () => {
-    if (!bottomSheetRef) return;
-    bottomSheetRef?.current?.dismiss();
+    bottomSheetRef.current?.dismiss();
+    disableScanning();
   };
 
   const handleScan = async () => {
@@ -41,19 +42,13 @@ const HomeScreen = () => {
 
       if (!tagId) {
         Alert.alert('No Tag Found', 'Would you like to add a new tool?', [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Add New Tool',
-            onPress: () => router.push('/add-tool'),
-          },
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Add New Tool', onPress: () => router.push('/add-tool') },
         ]);
         return;
       }
 
-      router.navigate(`/scan-tool/${tagId}`);
+      router.push(`/scan-tool/${tagId}`);
     } catch (error) {
       console.error('Error scanning NFC:', error);
       Alert.alert(
@@ -63,6 +58,13 @@ const HomeScreen = () => {
       );
     }
   };
+
+  const renderAction = (icon: React.ReactNode, label: string, onPress: () => void) => (
+    <Pressable style={styles.action} onPress={onPress}>
+      {icon}
+      <Text style={styles.label}>{label}</Text>
+    </Pressable>
+  );
 
   return (
     <BottomSheetModalProvider>
@@ -80,41 +82,24 @@ const HomeScreen = () => {
         )}
         enablePanDownToClose>
         <BottomSheetView style={styles.sheetContentContainer}>
-          {/* <CreateToolPopup closeBottomSheet={closeBottomSheet} /> */}
           <NfcPopup mode="read" onClose={closeBottomSheet} onAction={handleScan} />
         </BottomSheetView>
       </BottomSheetModal>
 
-      <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
-          <View>
-            <Text style={styles.welcomeText}>{`Welcome ${account ? account.name : 'there!'}`}</Text>
-          </View>
+          <Text style={styles.welcomeText}>{`Welcome ${account?.name || 'there!'}`}</Text>
 
           <View style={styles.content}>
             <Image source={require('~/assets/logo.png')} style={styles.logo} contentFit="contain" />
 
             <View style={styles.actions}>
-              <Pressable style={styles.action} onPress={handleScanTool}>
-                <ScanToolIcon style={styles.icon} />
-
-                <Text style={styles.label}>Scan Tool</Text>
-              </Pressable>
-
+              {renderAction(<ScanToolIcon style={styles.icon} />, 'Scan Tool', handleScanTool)}
               <Link href="/add-tool" asChild>
-                <Pressable style={styles.action}>
-                  <AddTool style={styles.icon} />
-
-                  <Text style={styles.label}>Add New Tool</Text>
-                </Pressable>
+                {renderAction(<AddTool style={styles.icon} />, 'Add New Tool', () => {})}
               </Link>
-
               <Link href="/my-tools" asChild>
-                <Pressable style={styles.action}>
-                  <MyTools style={styles.icon} />
-
-                  <Text style={styles.label}>My tools</Text>
-                </Pressable>
+                {renderAction(<MyTools style={styles.icon} />, 'My tools', () => {})}
               </Link>
             </View>
           </View>
@@ -131,10 +116,6 @@ const _styles = createStyleSheet((theme) => ({
     paddingBottom: bottomInset + 8,
     paddingHorizontal: theme.margins.containerMargin,
     backgroundColor: theme.colors.white,
-  },
-  header: {
-    flexDirection: 'row',
-    columnGap: theme.margins.lg,
   },
   content: {
     flex: 1,
@@ -172,20 +153,6 @@ const _styles = createStyleSheet((theme) => ({
   icon: {
     width: 64,
     aspectRatio: 1,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 0,
-  },
-  sheetContainer: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: theme.colors.gray,
   },
   sheetContentContainer: {
     flex: 1,

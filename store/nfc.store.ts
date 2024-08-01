@@ -1,27 +1,11 @@
 import { create } from 'zustand';
 
-export const useNfcStore = create<NfcStore>()((set, get) => ({
-  supported: false,
-  enabled: false,
-  scanning: false,
-  writing: false,
-  status: '',
-  toggleSupported: () => set({ supported: !get().supported }),
-  toggleEnabled: () => set({ enabled: !get().enabled }),
-  toggleScanning: () => set({ scanning: !get().scanning }),
-  toggleWriting: () => set({ writing: !get().writing }),
-  disableScanning: () => set({ scanning: false }),
-  updateStatus: (status) => set({ status }),
-  enableSupported: () => set({ supported: true }),
-  enableEnabled: () => set({ enabled: true }),
-}));
-
 interface NfcStoreState {
-  supported?: boolean | undefined;
-  enabled?: boolean | undefined;
-  scanning?: boolean | undefined;
-  status?: string | undefined;
-  writing?: boolean | undefined;
+  supported: boolean;
+  enabled: boolean;
+  scanning: boolean;
+  writing: boolean;
+  status: string;
 }
 
 interface NfcStoreActions {
@@ -36,3 +20,19 @@ interface NfcStoreActions {
 }
 
 type NfcStore = NfcStoreState & NfcStoreActions;
+
+export const useNfcStore = create<NfcStore>()((set) => ({
+  supported: false,
+  enabled: false,
+  scanning: false,
+  writing: false,
+  status: '',
+  toggleSupported: () => set((state) => ({ supported: !state.supported })),
+  toggleEnabled: () => set((state) => ({ enabled: !state.enabled })),
+  toggleScanning: () => set((state) => ({ scanning: !state.scanning })),
+  toggleWriting: () => set((state) => ({ writing: !state.writing })),
+  disableScanning: () => set({ scanning: false }),
+  updateStatus: (status) => set({ status }),
+  enableSupported: () => set({ supported: true }),
+  enableEnabled: () => set({ enabled: true }),
+}));
